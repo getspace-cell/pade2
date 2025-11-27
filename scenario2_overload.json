@@ -1,0 +1,56 @@
+{
+  "workday_start": "09:00",
+  "couriers": [
+    {
+      "id": 1,
+      "name": "Иван Петров",
+      "transport_type": "car",
+      "max_capacity": 50.0,
+      "contact": "+79991234567"
+    },
+    {
+      "id": 2,
+      "name": "Анна Сидорова",
+      "transport_type": "bicycle",
+      "max_capacity": 15.0,
+      "contact": "+79991234568"
+    }
+  ],
+  "orders": [
+    {
+      "id": 201,
+      "weight": 12.0,
+      "description": "Тяжелое оборудование",
+      "recipient": "ООО 'Завод'",
+      "recipient_phone": "+79991230101"
+    },
+    {
+      "id": 202,
+      "weight": 8.0,
+      "description": "Офисная техника",
+      "recipient": "Иванова Мария",
+      "recipient_phone": "+79991230102"
+    },
+    {
+      "id": 203,
+      "weight": 10.0,
+      "description": "Строительные материалы",
+      "recipient": "Петров Алексей",
+      "recipient_phone": "+79991230103"
+    },
+    {
+      "id": 204,
+      "weight": 15.0,
+      "description": "Товары для магазина",
+      "recipient": "Сидорова Анна",
+      "recipient_phone": "+79991230104"
+    },
+    {
+      "id": 205,
+      "weight": 20.0,
+      "description": "Промышленные товары",
+      "recipient": "ООО 'Производство'",
+      "recipient_phone": "+79991230105"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система доставки курьеров</title>
+    <link rel="stylesheet" href="/static/style.css?v=4">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚚 Система доставки курьеров</h1>
+
+            <div class="connection-status">
+                <span>Статус подключения: </span>
+                <span id="connectionStatus" class="status-connected">✅ Подключено</span>
+            </div>
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="label">Всего заказов</span>
+                    <span class="value" id="totalOrders">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Доставлено</span>
+                    <span class="value" id="deliveredOrders">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Назначено</span>
+                    <span class="value" id="assignedOrders">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Загрузка системы</span>
+                    <span class="value" id="systemLoad">0%</span>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <input type="file" id="jsonFile" accept=".json" class="file-input">
+                <button class="upload-button" onclick="document.getElementById('jsonFile').click()">
+                    📁 Загрузить JSON файл
+                </button>
+                <div id="uploadStatus" class="upload-status"></div>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="panel logs-panel">
+                <h2>📋 Журнал событий</h2>
+                <div class="logs-container" id="logsContainer">
+                    <div class="no-data">Загрузка событий...</div>
+                </div>
+            </div>
+
+            <div class="panel orders-panel">
+                <h2>📦 Все заказы</h2>
+                <div class="orders-container" id="ordersContainer">
+                    <div class="no-data">Загрузка заказов...</div>
+                </div>
+            </div>
+
+            <div class="panel couriers-panel">
+                <h2>🚗 Курьеры</h2>
+                <div class="couriers-container" id="couriersContainer">
+                    <div class="no-data">Загрузка курьеров...</div>
+                </div>
+            </div>
+
+            <div class="panel statistics-panel">
+                <h2>📊 Статистика</h2>
+                <div class="stats-container" id="statsContainer">
+                    <div class="no-data">Загрузка статистики...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js?v=4"></script>
+</body>
+</html>
