@@ -1,6 +1,7 @@
-from pade.core.agent import Agent
-from pade.acl.messages import ACLMessage
-from pade.acl.aid import AID
+# [file name]: base_agent.py
+from pade.pade.core.agent import Agent
+from pade.pade.acl.messages import ACLMessage
+from pade.pade.acl.aid import AID
 import json
 import time
 import requests
@@ -22,6 +23,10 @@ class BaseAgent(Agent):
             super().send(message)
             elapsed = time.time() - self.start_time
             self.log(f"📤 [{elapsed:.1f}s] Отправлено для {receiver_name}: {content.get('type')}")
+
+            # Сразу логируем отправленное сообщение в GUI
+            self.log_communication(self.agent_name, receiver_name,
+                                   content.get('type'), content)
         except Exception as e:
             elapsed = time.time() - self.start_time
             self.log(f"❌ Ошибка отправки: {e}")
@@ -45,6 +50,28 @@ class BaseAgent(Agent):
         except:
             pass  # GUI может быть не доступен
 
+    def log_communication(self, sender, receiver, msg_type, content):
+        """Логирует общение между агентами"""
+        try:
+            # Форматируем сообщение для GUI
+            formatted_msg = {
+                "sender": sender,
+                "receiver": receiver,
+                "type": msg_type,
+                "content": content,
+                "direction": "outgoing" if sender == self.agent_name else "incoming",
+                "timestamp": time.time()
+            }
+
+            requests.post(
+                f"{self.gui_url}/api/log_communication",
+                json=formatted_msg,
+                timeout=1
+            )
+            self.log(f"💬 Сообщение от {sender} к {receiver}: {msg_type}")
+        except Exception as e:
+            self.log(f"⚠️ Не удалось отправить сообщение в GUI: {e}")
+
     def update_gui_courier(self, courier_id, data):
         """Обновление данных курьера в GUI"""
         try:
@@ -66,3 +93,24 @@ class BaseAgent(Agent):
             )
         except:
             pass
+
+    def update_order_status(self, order_id, status, courier_name=None):
+        """Обновляет статус заказа в GUI"""
+        order_data = {
+            "status": status,
+            "assigned_courier": courier_name
+        }
+
+        try:
+            requests.post(
+                f"{self.gui_url}/api/update_order/{order_id}",
+                json=order_data,
+                timeout=1
+            )
+            self.log(f"🔄 Обновлен статус заказа #{order_id}: {status}")
+        except Exception as e:
+            self.log(f"⚠️ Не удалось обновить статус заказа #{order_id}: {e}")
+
+    def update_gui_after_distribution(self):
+        """Обновляет GUI после распределения (базовый метод)"""
+        pass  # Должен быть переопределен в наследниках

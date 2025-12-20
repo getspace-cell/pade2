@@ -21,57 +21,79 @@
       "transport_type": "motorcycle",
       "max_capacity": 25.0,
       "contact": "+79991234569"
+    },
+    {
+      "id": 4,
+      "name": "Мария Васильева",
+      "transport_type": "foot",
+      "max_capacity": 10.0,
+      "contact": "+79991234570"
     }
   ],
   "orders": [
     {
       "id": 101,
-      "weight": 5.0,
+      "weight": 8.0,
       "description": "Срочный документ в офис",
       "recipient": "ООО 'Компания'",
-      "recipient_phone": "+79991230001"
+      "recipient_phone": "+79991230001",
+      "priority": "high"
     },
     {
       "id": 102,
       "weight": 3.0,
       "description": "Посылка с одеждой",
       "recipient": "Иванова Мария",
-      "recipient_phone": "+79991230002"
+      "recipient_phone": "+79991230002",
+      "priority": "normal"
     },
     {
       "id": 103,
-      "weight": 4.0,
+      "weight": 12.0,
       "description": "Электроника",
       "recipient": "Петров Алексей",
-      "recipient_phone": "+79991230003"
+      "recipient_phone": "+79991230003",
+      "priority": "high"
     },
     {
       "id": 104,
       "weight": 2.0,
       "description": "Лекарства",
       "recipient": "Сидорова Анна",
-      "recipient_phone": "+79991230004"
+      "recipient_phone": "+79991230004",
+      "priority": "urgent"
     },
     {
       "id": 105,
-      "weight": 6.0,
-      "description": "Канцелярия",
+      "weight": 25.0,
+      "description": "Оборудование для офиса",
       "recipient": "ООО 'Офис'",
-      "recipient_phone": "+79991230005"
+      "recipient_phone": "+79991230005",
+      "priority": "normal"
     },
     {
       "id": 106,
       "weight": 3.0,
       "description": "Книги",
       "recipient": "Васильев Дмитрий",
-      "recipient_phone": "+79991230006"
+      "recipient_phone": "+79991230006",
+      "priority": "normal"
     },
     {
       "id": 107,
-      "weight": 4.0,
+      "weight": 7.0,
       "description": "Товары для дома",
       "recipient": "Николаева Ольга",
-      "recipient_phone": "+79991230007"
+      "recipient_phone": "+79991230007",
+      "priority": "normal"
+    },
+    {
+      "id": 108,
+      "weight": 18.0,
+      "description": "Спортивный инвентарь",
+      "recipient": "Спортклуб 'Энергия'",
+      "recipient_phone": "+79991230008",
+      "priority": "normal"
     }
   ]
 }

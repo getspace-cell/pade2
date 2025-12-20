@@ -5,73 +5,163 @@
       "id": 1,
       "name": "Иван Петров",
       "transport_type": "car",
-      "max_capacity": 50.0,
-      "contact": "+79991234567"
+      "max_capacity": 100.0,
+      "contact": "+79991234567",
+      "speed": 40
     },
     {
       "id": 2,
       "name": "Анна Сидорова",
       "transport_type": "bicycle",
-      "max_capacity": 15.0,
-      "contact": "+79991234568"
+      "max_capacity": 25.0,
+      "contact": "+79991234568",
+      "speed": 15
     },
     {
       "id": 3,
       "name": "Петр Иванов",
       "transport_type": "motorcycle",
-      "max_capacity": 25.0,
-      "contact": "+79991234569"
+      "max_capacity": 40.0,
+      "contact": "+79991234569",
+      "speed": 35
+    },
+    {
+      "id": 4,
+      "name": "Мария Васильева",
+      "transport_type": "foot",
+      "max_capacity": 15.0,
+      "contact": "+79991234570",
+      "speed": 5
+    },
+    {
+      "id": 5,
+      "name": "Дмитрий Николаев",
+      "transport_type": "car",
+      "max_capacity": 80.0,
+      "contact": "+79991234571",
+      "speed": 30
     }
   ],
   "orders": [
     {
       "id": 101,
-      "weight": 5.0,
-      "description": "Срочный документ в офис",
+      "weight": 8.0,
+      "description": "Срочный документ в офис (высокий приоритет)",
       "recipient": "ООО 'Компания'",
-      "recipient_phone": "+79991230001"
+      "recipient_phone": "+79991230001",
+      "priority": "high"
     },
     {
       "id": 102,
-      "weight": 3.0,
-      "description": "Посылка с одеждой",
+      "weight": 12.0,
+      "description": "Компьютерное оборудование",
       "recipient": "Иванова Мария",
-      "recipient_phone": "+79991230002"
+      "recipient_phone": "+79991230002",
+      "priority": "normal"
     },
     {
       "id": 103,
-      "weight": 4.0,
-      "description": "Электроника",
+      "weight": 25.0,
+      "description": "Серверное оборудование (тяжелый заказ)",
       "recipient": "Петров Алексей",
-      "recipient_phone": "+79991230003"
+      "recipient_phone": "+79991230003",
+      "priority": "high"
     },
     {
       "id": 104,
-      "weight": 2.0,
-      "description": "Лекарства",
+      "weight": 3.0,
+      "description": "Лекарства (срочно)",
       "recipient": "Сидорова Анна",
-      "recipient_phone": "+79991230004"
+      "recipient_phone": "+79991230004",
+      "priority": "urgent"
     },
     {
       "id": 105,
-      "weight": 6.0,
-      "description": "Канцелярия",
+      "weight": 45.0,
+      "description": "Офисная мебель (очень тяжелый)",
       "recipient": "ООО 'Офис'",
-      "recipient_phone": "+79991230005"
+      "recipient_phone": "+79991230005",
+      "priority": "normal"
     },
     {
       "id": 106,
-      "weight": 3.0,
-      "description": "Книги",
+      "weight": 7.0,
+      "description": "Книги для библиотеки",
       "recipient": "Васильев Дмитрий",
-      "recipient_phone": "+79991230006"
+      "recipient_phone": "+79991230006",
+      "priority": "normal"
     },
     {
       "id": 107,
-      "weight": 4.0,
+      "weight": 18.0,
       "description": "Товары для дома",
       "recipient": "Николаева Ольга",
-      "recipient_phone": "+79991230007"
+      "recipient_phone": "+79991230007",
+      "priority": "normal"
+    },
+    {
+      "id": 108,
+      "weight": 30.0,
+      "description": "Спортивный инвентарь",
+      "recipient": "Спортклуб 'Энергия'",
+      "recipient_phone": "+79991230008",
+      "priority": "normal"
+    },
+    {
+      "id": 109,
+      "weight": 5.0,
+      "description": "Кондитерские изделия",
+      "recipient": "Кафе 'Сладости'",
+      "recipient_phone": "+79991230009",
+      "priority": "high"
+    },
+    {
+      "id": 110,
+      "weight": 22.0,
+      "description": "Строительные материалы",
+      "recipient": "Стройка №5",
+      "recipient_phone": "+79991230010",
+      "priority": "normal"
+    },
+    {
+      "id": 111,
+      "weight": 9.0,
+      "description": "Медицинское оборудование",
+      "recipient": "Больница №3",
+      "recipient_phone": "+79991230011",
+      "priority": "urgent"
+    },
+    {
+      "id": 112,
+      "weight": 35.0,
+      "description": "Промышленные детали",
+      "recipient": "Завод 'Металл'",
+      "recipient_phone": "+79991230012",
+      "priority": "normal"
+    },
+    {
+      "id": 113,
+      "weight": 4.0,
+      "description": "Ювелирные изделия (ценный груз)",
+      "recipient": "Бутик 'Золото'",
+      "recipient_phone": "+79991230013",
+      "priority": "high"
+    },
+    {
+      "id": 114,
+      "weight": 28.0,
+      "description": "Автозапчасти",
+      "recipient": "Автосервис 'Мотор'",
+      "recipient_phone": "+79991230014",
+      "priority": "normal"
+    },
+    {
+      "id": 115,
+      "weight": 15.0,
+      "description": "Бытовая техника",
+      "recipient": "Магазин 'Техника'",
+      "recipient_phone": "+79991230015",
+      "priority": "normal"
     }
   ]
 }

@@ -1,3 +1,4 @@
+// [file name]: script.js
 class CourierSystemGUI {
     constructor() {
         this.ws = null;
@@ -6,7 +7,8 @@ class CourierSystemGUI {
             logs: [],
             statistics: {},
             couriers: {},
-            orders: {}
+            orders: {},
+            communications: []
         };
 
         this.init();
@@ -87,10 +89,29 @@ class CourierSystemGUI {
                 this.updateStatistics(data.statistics);
                 this.animateStatisticsUpdate();
                 break;
-            case 'orders_list':
-                console.log('📋 Orders list received');
-                this.renderOrders(data.orders);
+            case 'communication_update':
+                console.log('💬 Communication update received');
+                this.addCommunication(data.communication);
+                // ОБНОВЛЯЕМ СЧЕТЧИК СООБЩЕНИЙ ИЗ ОБНОВЛЕННОЙ СТАТИСТИКИ
+                if (data.total_messages !== undefined) {
+                    this.updateMessagesCount(data.total_messages);
+                }
                 break;
+            case 'communications_list':
+                console.log('📋 Communications list received');
+                this.renderCommunications(data.communications || []);
+                break;
+        }
+    }
+
+    updateMessagesCount(count) {
+        const messagesElement = document.getElementById('messagesCount');
+        if (messagesElement) {
+            const currentCount = parseInt(messagesElement.textContent) || 0;
+            if (count !== currentCount) {
+                messagesElement.textContent = count;
+                this.animateUpdate('messagesCount');
+            }
         }
     }
 
@@ -99,6 +120,10 @@ class CourierSystemGUI {
         this.renderLogs();
         this.renderCouriers();
         this.renderOrders(this.state.orders);
+        this.renderCommunications(this.state.communications || []);
+
+        // Обновляем счетчик сообщений из статистики
+        this.updateMessagesCount(this.state.statistics.messages_exchanged || 0);
     }
 
     renderStatistics() {
@@ -106,7 +131,10 @@ class CourierSystemGUI {
 
         document.getElementById('totalOrders').textContent = stats.total_orders || 0;
         document.getElementById('deliveredOrders').textContent = stats.delivered_orders || 0;
-        document.getElementById('assignedOrders').textContent = stats.assigned_orders || 0;
+
+        // Используем функцию updateMessagesCount для счетчика сообщений
+        this.updateMessagesCount(stats.messages_exchanged || 0);
+
         document.getElementById('systemLoad').textContent = `${(stats.system_load || 0).toFixed(1)}%`;
 
         const statsContainer = document.getElementById('statsContainer');
@@ -128,6 +156,10 @@ class CourierSystemGUI {
                 <span>${stats.pending_orders || 0}</span>
             </div>
             <div class="stat-item">
+                <span>Назначенных заказов:</span>
+                <span>${stats.assigned_orders || 0}</span>
+            </div>
+            <div class="stat-item">
                 <span>Общая грузоподъемность:</span>
                 <span>${(stats.total_capacity || 0).toFixed(1)} кг</span>
             </div>
@@ -142,6 +174,10 @@ class CourierSystemGUI {
             <div class="stat-item">
                 <span>Использование емкости:</span>
                 <span>${capacityUsage.toFixed(1)}%</span>
+            </div>
+            <div class="stat-item">
+                <span>Сообщений:</span>
+                <span>${stats.messages_exchanged || 0}</span>
             </div>
         `;
 
@@ -223,6 +259,7 @@ class CourierSystemGUI {
         const statusText = courier.status === 'delivering' ? 'В доставке' : 'Доступен';
         const statusColor = courier.status === 'delivering' ? 'status-delivering' : 'status-available';
         const ordersCount = courier.assigned_orders ? courier.assigned_orders.length : 0;
+        const messageCount = courier.message_count || 0;
 
         return `
             <div class="courier-card ${statusClass}" data-courier-id="${data.id}">
@@ -242,6 +279,10 @@ class CourierSystemGUI {
                     <div>
                         <span>Загрузка:</span>
                         <span>${currentCapacity.toFixed(1)}/${maxCapacity} кг</span>
+                    </div>
+                    <div>
+                        <span>Сообщений:</span>
+                        <span>${messageCount}</span>
                     </div>
                 </div>
                 <div class="progress-bar">
@@ -303,13 +344,91 @@ class CourierSystemGUI {
         `;
     }
 
-    getStatusText(status) {
-        const statusMap = {
-            'pending': 'Ожидает',
-            'assigned': 'Назначен',
-            'delivered': 'Доставлен'
-        };
-        return statusMap[status] || status;
+    renderCommunications(communications) {
+        const container = document.getElementById('communicationsContainer');
+
+        if (!communications || communications.length === 0) {
+            container.innerHTML = '<div class="no-data">Нет сообщений</div>';
+            return;
+        }
+
+        let html = '';
+        // Отображаем ВСЕ сообщения без фильтрации
+        communications.forEach(msg => {
+            html += this.createMessageCard(msg);
+        });
+
+        container.innerHTML = html || '<div class="no-data">Нет сообщений</div>';
+
+        if (html) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }
+
+    addCommunication(communication) {
+        const container = document.getElementById('communicationsContainer');
+
+        if (container.querySelector('.no-data')) {
+            container.innerHTML = '';
+        }
+
+        // ВСЕГДА добавляем сообщение (без фильтрации)
+        const messageCard = this.createMessageCard(communication);
+        container.innerHTML += messageCard;
+        container.scrollTop = container.scrollHeight;
+
+        // Счетчик сообщений теперь обновляется через statistics_update
+    }
+
+    createMessageCard(message) {
+        const direction = message.direction || 'unknown';
+        const directionClass = direction === 'incoming' ? 'direction-incoming' : 'direction-outgoing';
+        const directionIcon = direction === 'incoming' ? '📥' : '📤';
+        const directionText = direction === 'incoming' ? 'Входящее' : 'Исходящее';
+
+        const type = message.type || 'unknown';
+        const typeClass = this.getMessageTypeClass(type);
+
+        let contentHtml = '';
+        if (typeof message.content === 'object') {
+            contentHtml = Object.entries(message.content)
+                .map(([key, value]) => {
+                    // Форматируем вложенные объекты
+                    if (typeof value === 'object' && value !== null) {
+                        return `<div><strong>${key}:</strong> ${JSON.stringify(value, null, 2)}</div>`;
+                    }
+                    return `<div><strong>${key}:</strong> ${value}</div>`;
+                })
+                .join('');
+        } else {
+            contentHtml = `<div>${message.content}</div>`;
+        }
+
+        return `
+            <div class="message-card ${direction} ${typeClass}" data-message-id="${message.id}">
+                <div class="message-header">
+                    <div class="message-direction ${directionClass}">
+                        ${directionIcon} ${directionText}
+                    </div>
+                    <div class="message-time">${message.time_str || ''}</div>
+                </div>
+                <div class="message-participants">
+                    ${message.sender} → ${message.receiver}
+                </div>
+                <div class="message-type">${type}</div>
+                <div class="message-content">
+                    ${contentHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    getMessageTypeClass(type) {
+        // Простая классификация по типу сообщения
+        if (type.includes('help')) return 'help';
+        if (type.includes('order') || type.includes('assignment') || type.includes('delivery')) return 'coordination';
+        if (type.includes('info') || type.includes('resource') || type.includes('system')) return 'info';
+        return '';
     }
 
     updateStatistics(newStats) {
@@ -322,7 +441,7 @@ class CourierSystemGUI {
     }
 
     animateStatisticsUpdate() {
-        ['totalOrders', 'deliveredOrders', 'assignedOrders', 'systemLoad'].forEach(id => {
+        ['totalOrders', 'deliveredOrders', 'assignedOrders', 'systemLoad', 'messagesCount'].forEach(id => {
             this.animateUpdate(id);
         });
     }
@@ -346,6 +465,16 @@ class CourierSystemGUI {
             'foot': '🚶'
         };
         return icons[transportType] || '📦';
+    }
+
+    getStatusText(status) {
+        const statusMap = {
+            'pending': 'Ожидает',
+            'assigned': 'Назначен',
+            'delivering': 'В доставке',
+            'delivered': 'Доставлен'
+        };
+        return statusMap[status] || status;
     }
 
     setupEventListeners() {

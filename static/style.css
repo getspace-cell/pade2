@@ -553,3 +553,218 @@ h1 {
         min-width: 200px;
     }
 }
+
+/* [file name]: style.css */
+/* Добавляем новые стили в конец файла */
+
+/* Communications Panel - БОЛЬШОЙ РАЗМЕР БЕЗ ФИЛЬТРОВ */
+.communications-panel {
+    grid-column: 2;
+    grid-row: 1 / span 2; /* Занимаем 2 строки вместо 1 */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.communications-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Увеличиваем расстояние между сообщениями */
+    padding: 5px; /* Добавляем немного отступов */
+}
+
+.message-card {
+    background: white;
+    border-radius: 12px; /* Увеличиваем радиус */
+    padding: 16px; /* Увеличиваем отступы */
+    margin-bottom: 10px; /* Добавляем отступ снизу */
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    border-left: 5px solid #74b9ff; /* Утолщаем бордер */
+    transition: all 0.3s ease;
+    font-size: 0.95em; /* Увеличиваем шрифт */
+}
+
+.message-card.incoming {
+    border-left-color: #00b894;
+    background: linear-gradient(135deg, #f8fff9, #e8f5e8);
+}
+
+.message-card.outgoing {
+    border-left-color: #0984e3;
+    background: linear-gradient(135deg, #f0f8ff, #e3f2fd);
+}
+
+.message-card.coordination {
+    border-left-color: #fdcb6e;
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+}
+
+.message-card.help {
+    border-left-color: #e17055;
+    background: linear-gradient(135deg, #ffeaea, #ffdbdb);
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px; /* Увеличиваем отступ */
+    font-size: 0.95em; /* Увеличиваем шрифт */
+}
+
+.message-direction {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Увеличиваем расстояние */
+    font-weight: bold;
+    font-size: 1em; /* Увеличиваем шрифт */
+}
+
+.direction-incoming {
+    color: #00b894;
+    font-size: 1em;
+}
+
+.direction-outgoing {
+    color: #0984e3;
+    font-size: 1em;
+}
+
+.message-time {
+    color: #6c757d;
+    font-size: 0.85em; /* Увеличиваем шрифт */
+    font-weight: 500;
+}
+
+.message-participants {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 1em; /* Увеличиваем шрифт */
+    padding: 3px 0;
+}
+
+.message-type {
+    display: inline-block;
+    padding: 4px 12px; /* Увеличиваем отступы */
+    background: #e9ecef;
+    border-radius: 15px; /* Увеличиваем радиус */
+    font-size: 0.85em; /* Увеличиваем шрифт */
+    margin-bottom: 10px; /* Увеличиваем отступ */
+    color: #495057;
+    font-weight: 500;
+}
+
+.message-content {
+    font-size: 0.95em; /* Увеличиваем шрифт */
+    color: #555;
+    line-height: 1.5; /* Увеличиваем межстрочный интервал */
+    padding: 12px; /* Увеличиваем отступы */
+    background: #f8f9fa;
+    border-radius: 8px; /* Увеличиваем радиус */
+    margin-top: 8px;
+    word-break: break-word; /* Перенос длинных слов */
+    white-space: pre-wrap; /* Сохраняем переносы строк */
+}
+
+/* Обновляем dashboard для 4-х колонок */
+@media (min-width: 1200px) {
+    .dashboard {
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+
+    .logs-panel {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+    }
+
+    .orders-panel {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+    }
+
+    .couriers-panel {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .communications-panel {
+        grid-column: 4; /* Перемещаем в 4-ю колонку */
+        grid-row: 1 / span 2; /* Занимаем всю высоту */
+    }
+
+    .statistics-panel {
+        grid-column: 3;
+        grid-row: 2;
+    }
+}
+
+/* Адаптация для меньших экранов */
+@media (max-width: 1199px) {
+    .dashboard {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
+    }
+
+    .logs-panel {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .orders-panel {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .couriers-panel {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .communications-panel {
+        grid-column: 2;
+        grid-row: 2 / span 2; /* Занимаем 2 строки */
+    }
+
+    .statistics-panel {
+        grid-column: 1;
+        grid-row: 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto auto;
+    }
+
+    .logs-panel {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .orders-panel {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .couriers-panel {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    .communications-panel {
+        grid-column: 1;
+        grid-row: 4;
+        min-height: 400px; /* Минимальная высота на мобильных */
+    }
+
+    .statistics-panel {
+        grid-column: 1;
+        grid-row: 5;
+    }
+}

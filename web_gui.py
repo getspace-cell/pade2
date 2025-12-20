@@ -1,3 +1,4 @@
+# [file name]: web_gui.py
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, UploadFile, File, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -24,6 +25,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Создаем директории, если их нет
+os.makedirs("static", exist_ok=True)
+os.makedirs("templates", exist_ok=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -73,7 +78,8 @@ def load_initial_data():
                 },
                 "current_capacity": 0.0,
                 "assigned_orders": [],
-                "status": "available"
+                "status": "available",
+                "message_count": 0
             }
             print(f"✅ WEB GUI: Загружен курьер: {courier_data['name']}")
 
@@ -109,7 +115,8 @@ def load_initial_data():
                 },
                 "current_capacity": 0.0,
                 "assigned_orders": [],
-                "status": "available"
+                "status": "available",
+                "message_count": 0
             },
             "2": {
                 "data": {
@@ -120,7 +127,8 @@ def load_initial_data():
                 },
                 "current_capacity": 0.0,
                 "assigned_orders": [],
-                "status": "available"
+                "status": "available",
+                "message_count": 0
             }
         }
 
@@ -173,10 +181,12 @@ class ConnectionManager:
                 "active_couriers": len(initial_couriers),
                 "total_capacity": sum(courier["data"]["max_capacity"] for courier in initial_couriers.values()),
                 "used_capacity": 0.0,
-                "system_load": 0.0
+                "system_load": 0.0,
+                "messages_exchanged": 0  # Инициализируем счетчик сообщений
             },
             "couriers": initial_couriers,
-            "orders": initial_orders
+            "orders": initial_orders,
+            "communications": []  # Новая секция для общения
         }
         print(f"✅ WEB GUI: Курьеров: {len(initial_couriers)}, Заказов: {total_orders}")
 
@@ -215,6 +225,44 @@ class ConnectionManager:
             "log": log_entry
         }))
 
+    def add_communication(self, message: Dict[str, Any]):
+        """Добавляет сообщение в историю общения"""
+        # Форматируем сообщение для отображения
+        formatted_msg = {
+            "id": len(self.system_state["communications"]) + 1,
+            "timestamp": time.time(),
+            "time_str": time.strftime("%H:%M:%S", time.localtime()),
+            "sender": message.get("sender", "unknown"),
+            "receiver": message.get("receiver", "unknown"),
+            "type": message.get("type", "unknown"),
+            "content": message.get("content", {}),
+            "direction": message.get("direction", "unknown")
+        }
+
+        self.system_state["communications"].append(formatted_msg)
+
+        # Ограничиваем историю
+        if len(self.system_state["communications"]) > 200:
+            self.system_state["communications"] = self.system_state["communications"][-200:]
+
+        # Увеличиваем счетчик сообщений в статистике
+        self.system_state["statistics"]["messages_exchanged"] += 1
+
+        # Рассылаем обновление статистики всем клиентам
+        asyncio.create_task(self.broadcast({
+            "type": "statistics_update",
+            "statistics": self.system_state["statistics"]
+        }))
+
+        # Рассылаем обновление сообщения
+        asyncio.create_task(self.broadcast({
+            "type": "communication_update",
+            "communication": formatted_msg,
+            "total_messages": self.system_state["statistics"]["messages_exchanged"]
+        }))
+
+        print(f"💬 Сообщение от {formatted_msg['sender']} к {formatted_msg['receiver']}: {formatted_msg['type']}")
+
     def update_courier(self, courier_id: str, updates: Dict[str, Any]):
         if courier_id in self.system_state["couriers"]:
             self.system_state["couriers"][courier_id].update(updates)
@@ -247,11 +295,12 @@ class ConnectionManager:
             "statistics": self.system_state["statistics"]
         }))
 
-    def send_orders_list(self):
-        """Отправляет полный список заказов"""
+    def send_communications_list(self):
+        """Отправляет список сообщений"""
         asyncio.create_task(self.broadcast({
-            "type": "orders_list",
-            "orders": self.system_state["orders"]
+            "type": "communications_list",
+            "communications": self.system_state["communications"][-50:],  # Последние 50 сообщений
+            "total_messages": self.system_state["statistics"]["messages_exchanged"]
         }))
 
 
@@ -268,6 +317,16 @@ async def add_log(request: Request):
     try:
         data = await request.json()
         manager.add_log(data.get("message", ""), data.get("agent", "system"))
+        return {"status": "success"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/api/log_communication")
+async def log_communication(request: Request):
+    try:
+        data = await request.json()
+        manager.add_communication(data)
         return {"status": "success"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -373,8 +432,8 @@ async def websocket_endpoint(websocket: WebSocket):
             "data": manager.system_state
         })
 
-        # Отправляем список заказов
-        manager.send_orders_list()
+        # Отправляем историю общения
+        manager.send_communications_list()
 
         while True:
             data = await websocket.receive_text()
@@ -382,6 +441,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 command = json.loads(data)
                 if command.get("type") == "ping":
                     await websocket.send_json({"type": "pong"})
+                elif command.get("type") == "get_communications":
+                    # Отправляем историю сообщений по запросу
+                    manager.send_communications_list()
             except:
                 pass
 

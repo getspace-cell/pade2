@@ -1,6 +1,6 @@
 import json
 from agents.base_agent import BaseAgent
-from pade.behaviours.protocols import FipaRequestProtocol
+from pade.pade.behaviours.protocols import FipaRequestProtocol
 
 
 class MonitorAgent(BaseAgent):

@@ -1,8 +1,9 @@
+# [file name]: main.py
 import json
 import time
-from pade.core.agent import Agent
-from pade.acl.aid import AID
-from pade.misc.utility import start_loop
+from pade.pade.core.agent import Agent
+from pade.pade.acl.aid import AID
+from pade.pade.misc.utility import start_loop
 import threading
 import subprocess
 import sys
@@ -11,7 +12,7 @@ import atexit
 import signal
 import socket
 
-from agents.distribution_agent import DistributionAgent
+from agents.coordinator_agent import CoordinatorAgent
 from agents.courier_agent import CourierAgent
 from agents.monitor_agent import MonitorAgent
 from port_manager import port_manager
@@ -201,7 +202,7 @@ def run_pade():
     """Запуск PADE системы"""
     global agents_list
 
-    print("🎯 Запускаем PADE систему...")
+    print("🎯 Запускаем систему координации доставки...")
 
     data = load_data()
     couriers_data = data.get("couriers", [])
@@ -230,15 +231,15 @@ def run_pade():
             agents_list.append(courier_agent)
             print(f"✅ Создан курьер: {courier_data['name']} (порт: {courier_agent.aid.port})")
 
-        # Агент распределения
-        distribution_agent = create_agent_with_port(
-            DistributionAgent,
-            "distribution_agent",
+        # Агент координации (заменяем distribution_agent)
+        coordinator_agent = create_agent_with_port(
+            CoordinatorAgent,
+            "coordinator_agent",
             couriers_data,
             orders_data
         )
-        agents_list.append(distribution_agent)
-        print(f"✅ Создан агент распределения (порт: {distribution_agent.aid.port})")
+        agents_list.append(coordinator_agent)
+        print(f"✅ Создан агент координации (порт: {coordinator_agent.aid.port})")
 
         # Агент мониторинга
         monitor_agent = create_agent_with_port(
@@ -249,7 +250,7 @@ def run_pade():
         print(f"✅ Создан агент мониторинга (порт: {monitor_agent.aid.port})")
 
         print(f"✅ Всего агентов: {len(agents_list)}")
-        print("⏳ Запускаем систему...")
+        print("⏳ Запускаем систему координации...")
 
         # Запускаем PADE
         start_loop(agents_list)
@@ -273,7 +274,7 @@ def main():
     atexit.register(cleanup)
 
     print("=" * 50)
-    print("🚚 СИСТЕМА ДОСТАВКИ КУРЬЕРОВ - PADE")
+    print("🚚 СИСТЕМА КООРДИНАЦИИ ДОСТАВКИ КУРЬЕРОВ")
     print("=" * 50)
     print(f"🆔 PID: {os.getpid()}")
 
@@ -286,7 +287,7 @@ def main():
     print("⏳ Ожидаем запуск GUI (5 секунд)...")
     time.sleep(5)
 
-    print("🎯 Запускаем PADE систему...")
+    print("🎯 Запускаем систему координации...")
     run_pade()
 
 

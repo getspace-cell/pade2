@@ -7,14 +7,14 @@ import subprocess
 def restart_system():
     """Полный перезапуск системы с принудительным завершением"""
     print("=" * 60)
-    print("🔄 ПОЛНЫЙ ПЕРЕЗАПУСК СИСТЕМЫ")
+    print("🔄 ПОЛНЫЙ ПЕРЕЗАПУСК СИСТЕМЫ КООРДИНАЦИИ")
     print("=" * 60)
 
     current_pid = os.getpid()
     print(f"🔴 Текущий PID: {current_pid}")
 
     # Шаг 1: Запускаем новую систему
-    print("🚀 Запускаем новую систему...")
+    print("🚀 Запускаем новую систему координации...")
     try:
         if os.name == 'nt':  # Windows
             subprocess.Popen([sys.executable, "main.py"],
