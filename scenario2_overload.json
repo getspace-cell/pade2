@@ -28,8 +28,8 @@
     {
       "id": 4,
       "name": "Мария Васильева",
-      "transport_type": "foot",
-      "max_capacity": 15.0,
+      "transport_type": "car",
+      "max_capacity": 1005.0,
       "contact": "+79991234570",
       "speed": 5
     },
@@ -44,123 +44,99 @@
   ],
   "orders": [
     {
-      "id": 101,
-      "weight": 8.0,
-      "description": "Срочный документ в офис (высокий приоритет)",
-      "recipient": "ООО 'Компания'",
-      "recipient_phone": "+79991230001",
-      "priority": "high"
-    },
-    {
-      "id": 102,
-      "weight": 12.0,
-      "description": "Компьютерное оборудование",
-      "recipient": "Иванова Мария",
-      "recipient_phone": "+79991230002",
-      "priority": "normal"
-    },
-    {
-      "id": 103,
-      "weight": 25.0,
-      "description": "Серверное оборудование (тяжелый заказ)",
-      "recipient": "Петров Алексей",
-      "recipient_phone": "+79991230003",
-      "priority": "high"
-    },
-    {
-      "id": 104,
-      "weight": 3.0,
-      "description": "Лекарства (срочно)",
-      "recipient": "Сидорова Анна",
-      "recipient_phone": "+79991230004",
-      "priority": "urgent"
-    },
-    {
-      "id": 105,
-      "weight": 45.0,
-      "description": "Офисная мебель (очень тяжелый)",
-      "recipient": "ООО 'Офис'",
-      "recipient_phone": "+79991230005",
-      "priority": "normal"
-    },
-    {
-      "id": 106,
-      "weight": 7.0,
-      "description": "Книги для библиотеки",
-      "recipient": "Васильев Дмитрий",
-      "recipient_phone": "+79991230006",
-      "priority": "normal"
-    },
-    {
-      "id": 107,
-      "weight": 18.0,
-      "description": "Товары для дома",
-      "recipient": "Николаева Ольга",
-      "recipient_phone": "+79991230007",
-      "priority": "normal"
-    },
-    {
-      "id": 108,
-      "weight": 30.0,
-      "description": "Спортивный инвентарь",
-      "recipient": "Спортклуб 'Энергия'",
-      "recipient_phone": "+79991230008",
-      "priority": "normal"
-    },
-    {
-      "id": 109,
-      "weight": 5.0,
-      "description": "Кондитерские изделия",
-      "recipient": "Кафе 'Сладости'",
-      "recipient_phone": "+79991230009",
-      "priority": "high"
-    },
-    {
-      "id": 110,
-      "weight": 22.0,
-      "description": "Строительные материалы",
-      "recipient": "Стройка №5",
-      "recipient_phone": "+79991230010",
-      "priority": "normal"
-    },
-    {
-      "id": 111,
-      "weight": 9.0,
-      "description": "Медицинское оборудование",
-      "recipient": "Больница №3",
-      "recipient_phone": "+79991230011",
-      "priority": "urgent"
-    },
-    {
-      "id": 112,
-      "weight": 35.0,
-      "description": "Промышленные детали",
+      "id": 201,
+      "weight": 60.0,
+      "description": "ТЯЖЕЛЫЙ: Промышленное оборудование (вызовет перегрузку)",
       "recipient": "Завод 'Металл'",
-      "recipient_phone": "+79991230012",
-      "priority": "normal"
-    },
-    {
-      "id": 113,
-      "weight": 4.0,
-      "description": "Ювелирные изделия (ценный груз)",
-      "recipient": "Бутик 'Золото'",
-      "recipient_phone": "+79991230013",
+      "recipient_phone": "+79991231001",
       "priority": "high"
     },
     {
-      "id": 114,
-      "weight": 28.0,
-      "description": "Автозапчасти",
-      "recipient": "Автосервис 'Мотор'",
-      "recipient_phone": "+79991230014",
+      "id": 202,
+      "weight": 45.0,
+      "description": "ТЯЖЕЛЫЙ: Офисная мебель (потребует перераспределения)",
+      "recipient": "ООО 'ОфисПлюс'",
+      "recipient_phone": "+79991231002",
       "priority": "normal"
     },
     {
-      "id": 115,
-      "weight": 15.0,
+      "id": 203,
+      "weight": 30.0,
+      "description": "Спортивный инвентарь (средняя нагрузка)",
+      "recipient": "Спортклуб 'Атлет'",
+      "recipient_phone": "+79991231003",
+      "priority": "normal"
+    },
+    {
+      "id": 204,
+      "weight": 20.0,
       "description": "Бытовая техника",
-      "recipient": "Магазин 'Техника'",
-      "recipient_phone": "+79991230015",
+      "recipient": "Магазин 'ТехноМир'",
+      "recipient_phone": "+79991231004",
+      "priority": "normal"
+    },
+    {
+      "id": 205,
+      "weight": 10.0,
+      "description": "Документы в банк",
+      "recipient": "Банк 'Финансы'",
+      "recipient_phone": "+79991231005",
+      "priority": "high"
+    },
+    {
+      "id": 206,
+      "weight": 35.0,
+      "description": "Строительные материалы",
+      "recipient": "Стройка №7",
+      "recipient_phone": "+79991231006",
+      "priority": "normal"
+    },
+    {
+      "id": 207,
+      "weight": 15.0,
+      "description": "Товары для ремонта",
+      "recipient": "Строительный магазин",
+      "recipient_phone": "+79991231007",
+      "priority": "normal"
+    },
+    {
+      "id": 208,
+      "weight": 25.0,
+      "description": "Компьютерная техника",
+      "recipient": "ИТ компания 'Техно'",
+      "recipient_phone": "+79991231008",
+      "priority": "high"
+    },
+    {
+      "id": 209,
+      "weight": 8.0,
+      "description": "Лекарства в больницу",
+      "recipient": "Больница №1",
+      "recipient_phone": "+79991231009",
+      "priority": "urgent"
+    },
+    {
+      "id": 210,
+      "weight": 50.0,
+      "description": "ТЯЖЕЛЫЙ: Промышленные детали (тест перераспределения)",
+      "recipient": "Завод 'Деталь'",
+      "recipient_phone": "+79991231010",
+      "priority": "normal"
+    },
+    {
+      "id": 211,
+      "weight": 12.0,
+      "description": "Канцелярские товары",
+      "recipient": "Школа №15",
+      "recipient_phone": "+79991231011",
+      "priority": "normal"
+    },
+    {
+      "id": 212,
+      "weight": 28.0,
+      "description": "Товары для магазина",
+      "recipient": "Супермаркет 'Продукты'",
+      "recipient_phone": "+79991231012",
       "priority": "normal"
     }
   ]

@@ -1,4 +1,3 @@
-# [file name]: main.py
 import json
 import time
 from pade.pade.core.agent import Agent

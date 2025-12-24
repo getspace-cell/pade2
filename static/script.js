@@ -1,4 +1,4 @@
-// [file name]: script.js
+// [file name]: app.js
 class CourierSystemGUI {
     constructor() {
         this.ws = null;
@@ -92,7 +92,6 @@ class CourierSystemGUI {
             case 'communication_update':
                 console.log('💬 Communication update received');
                 this.addCommunication(data.communication);
-                // ОБНОВЛЯЕМ СЧЕТЧИК СООБЩЕНИЙ ИЗ ОБНОВЛЕННОЙ СТАТИСТИКИ
                 if (data.total_messages !== undefined) {
                     this.updateMessagesCount(data.total_messages);
                 }
@@ -101,18 +100,57 @@ class CourierSystemGUI {
                 console.log('📋 Communications list received');
                 this.renderCommunications(data.communications || []);
                 break;
+            case 'balance_report':
+                console.log('⚖️ Balance report received');
+                this.updateBalanceDisplay(data);
+                break;
+            case 'transfer_notification':
+                console.log('🔄 Transfer notification received');
+                this.showTransferNotification(data);
+                break;
         }
     }
 
     updateMessagesCount(count) {
         const messagesElement = document.getElementById('messagesCount');
         if (messagesElement) {
-            const currentCount = parseInt(messagesElement.textContent) || 0;
-            if (count !== currentCount) {
-                messagesElement.textContent = count;
-                this.animateUpdate('messagesCount');
-            }
+            messagesElement.textContent = count;
+            this.animateUpdate('messagesCount');
         }
+    }
+
+    updateBalanceDisplay(balanceData) {
+        // Обновляем статистику системы
+        const systemLoad = balanceData.system_load || 0;
+        document.getElementById('systemLoad').textContent = `${systemLoad.toFixed(1)}%`;
+    }
+
+    showTransferNotification(transferData) {
+        const fromName = transferData.from_name || 'Коллега';
+        const toName = transferData.to_name || 'Коллега';
+        const orderId = transferData.order_id || 'N/A';
+
+        this.addToast(`🔄 ${fromName} → ${toName}: передача заказа #${orderId}`, 'info');
+    }
+
+    addToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span>${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Удаляем через 5 секунд
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 5000);
     }
 
     renderAll() {
@@ -122,7 +160,6 @@ class CourierSystemGUI {
         this.renderOrders(this.state.orders);
         this.renderCommunications(this.state.communications || []);
 
-        // Обновляем счетчик сообщений из статистики
         this.updateMessagesCount(this.state.statistics.messages_exchanged || 0);
     }
 
@@ -131,11 +168,11 @@ class CourierSystemGUI {
 
         document.getElementById('totalOrders').textContent = stats.total_orders || 0;
         document.getElementById('deliveredOrders').textContent = stats.delivered_orders || 0;
-
-        // Используем функцию updateMessagesCount для счетчика сообщений
         this.updateMessagesCount(stats.messages_exchanged || 0);
 
-        document.getElementById('systemLoad').textContent = `${(stats.system_load || 0).toFixed(1)}%`;
+        // ФИКС: Убираем "цель" из загрузки системы
+        const systemLoad = stats.system_load || 0;
+        document.getElementById('systemLoad').textContent = `${systemLoad.toFixed(1)}%`;
 
         const statsContainer = document.getElementById('statsContainer');
         if (Object.keys(stats).length === 0) {
@@ -180,6 +217,20 @@ class CourierSystemGUI {
                 <span>${stats.messages_exchanged || 0}</span>
             </div>
         `;
+
+        // Добавляем информацию о балансировке, если есть
+        if (stats.load_imbalance !== undefined) {
+            html += `
+                <div class="stat-item">
+                    <span>Дисбаланс:</span>
+                    <span>${stats.load_imbalance.toFixed(1)}%</span>
+                </div>
+                <div class="stat-item">
+                    <span>Передач заказов:</span>
+                    <span>${stats.transfers_completed || 0}</span>
+                </div>
+            `;
+        }
 
         statsContainer.innerHTML = html;
     }
@@ -260,9 +311,22 @@ class CourierSystemGUI {
         const statusColor = courier.status === 'delivering' ? 'status-delivering' : 'status-available';
         const ordersCount = courier.assigned_orders ? courier.assigned_orders.length : 0;
         const messageCount = courier.message_count || 0;
+        const utilization = courier.utilization || loadPercent;
+
+        // Определяем перегрузку
+        let balanceClass = '';
+        let balanceInfo = '';
+
+        if (utilization > 80) {
+            balanceClass = 'overloaded';
+            balanceInfo = `<div class="overload-warning">ПЕРЕГРУЗКА! ${utilization.toFixed(1)}%</div>`;
+        } else if (utilization < 30) {
+            balanceClass = 'underloaded';
+            balanceInfo = `<div class="underload-info">НЕДОГРУЗКА ${utilization.toFixed(1)}%</div>`;
+        }
 
         return `
-            <div class="courier-card ${statusClass}" data-courier-id="${data.id}">
+            <div class="courier-card ${statusClass} ${balanceClass}" data-courier-id="${data.id}">
                 <div class="courier-header">
                     <span class="courier-name">${data.name}</span>
                     <span class="courier-status ${statusColor}">${statusText}</span>
@@ -281,6 +345,10 @@ class CourierSystemGUI {
                         <span>${currentCapacity.toFixed(1)}/${maxCapacity} кг</span>
                     </div>
                     <div>
+                        <span>Утилизация:</span>
+                        <span>${utilization.toFixed(1)}%</span>
+                    </div>
+                    <div>
                         <span>Сообщений:</span>
                         <span>${messageCount}</span>
                     </div>
@@ -289,6 +357,7 @@ class CourierSystemGUI {
                     <div class="progress-fill" style="width: ${loadPercent}%"></div>
                 </div>
                 <div class="progress-text">${loadPercent.toFixed(1)}%</div>
+                ${balanceInfo}
             </div>
         `;
     }
@@ -353,7 +422,6 @@ class CourierSystemGUI {
         }
 
         let html = '';
-        // Отображаем ВСЕ сообщения без фильтрации
         communications.forEach(msg => {
             html += this.createMessageCard(msg);
         });
@@ -372,12 +440,9 @@ class CourierSystemGUI {
             container.innerHTML = '';
         }
 
-        // ВСЕГДА добавляем сообщение (без фильтрации)
         const messageCard = this.createMessageCard(communication);
         container.innerHTML += messageCard;
         container.scrollTop = container.scrollHeight;
-
-        // Счетчик сообщений теперь обновляется через statistics_update
     }
 
     createMessageCard(message) {
@@ -393,7 +458,6 @@ class CourierSystemGUI {
         if (typeof message.content === 'object') {
             contentHtml = Object.entries(message.content)
                 .map(([key, value]) => {
-                    // Форматируем вложенные объекты
                     if (typeof value === 'object' && value !== null) {
                         return `<div><strong>${key}:</strong> ${JSON.stringify(value, null, 2)}</div>`;
                     }
@@ -424,10 +488,9 @@ class CourierSystemGUI {
     }
 
     getMessageTypeClass(type) {
-        // Простая классификация по типу сообщения
         if (type.includes('help')) return 'help';
         if (type.includes('order') || type.includes('assignment') || type.includes('delivery')) return 'coordination';
-        if (type.includes('info') || type.includes('resource') || type.includes('system')) return 'info';
+        if (type.includes('transfer')) return 'transfer';
         return '';
     }
 
@@ -441,7 +504,7 @@ class CourierSystemGUI {
     }
 
     animateStatisticsUpdate() {
-        ['totalOrders', 'deliveredOrders', 'assignedOrders', 'systemLoad', 'messagesCount'].forEach(id => {
+        ['totalOrders', 'deliveredOrders', 'systemLoad', 'messagesCount'].forEach(id => {
             this.animateUpdate(id);
         });
     }
@@ -548,6 +611,111 @@ class CourierSystemGUI {
     }
 }
 
+// Добавляем стили для тостов и балансировки
+const additionalStyles = `
+    <style>
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid #3498db;
+            max-width: 300px;
+        }
+
+        .toast.info {
+            border-left-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .toast.warning {
+            border-left-color: #e74c3c;
+            background: #ffeaea;
+        }
+
+        .toast.success {
+            border-left-color: #2ecc71;
+            background: #e8f5e8;
+        }
+
+        .toast-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .message-card.transfer .message-type {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .courier-card.overloaded {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #ffeaea, #ffdbdb);
+        }
+
+        .courier-card.underloaded {
+            border-left-color: #3498db;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        }
+
+        .overload-warning {
+            background: #e74c3c;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .underload-info {
+            background: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+`;
+
 document.addEventListener('DOMContentLoaded', () => {
+    document.head.insertAdjacentHTML('beforeend', additionalStyles);
     new CourierSystemGUI();
 });

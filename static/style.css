@@ -768,3 +768,191 @@ h1 {
         grid-row: 5;
     }
 }
+
+/* Стили для балансировки нагрузки */
+.courier-card.overloaded {
+    border-left-color: #e74c3c;
+    background: linear-gradient(135deg, #ffeaea, #ffdbdb);
+    animation: pulse-overload 2s infinite;
+}
+
+.courier-card.underloaded {
+    border-left-color: #3498db;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+@keyframes pulse-overload {
+    0% { box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
+    50% { box-shadow: 0 4px 25px rgba(231, 76, 60, 0.6); }
+    100% { box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
+}
+
+.overload-warning {
+    background: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.5s ease;
+}
+
+.underload-info {
+    background: #3498db;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.5s ease;
+}
+
+.load-balance-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.load-balance-good { background-color: #2ecc71; }
+.load-balance-warning { background-color: #f39c12; }
+.load-balance-critical { background-color: #e74c3c; }
+
+.transfer-message {
+    border-left: 4px solid #9b59b6;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.transfer-message .message-type {
+    background: #9b59b6;
+    color: white;
+}
+
+.message-card.transfer {
+    border-left-color: #9b59b6;
+    background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+}
+
+.message-card.overload-alert {
+    border-left-color: #e74c3c;
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    animation: alert-pulse 1s infinite;
+}
+
+@keyframes alert-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+/* Стили для статистики балансировки */
+.balance-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.balance-stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.balance-stat-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    display: block;
+}
+
+.balance-stat-label {
+    font-size: 0.8em;
+    color: #6c757d;
+    display: block;
+}
+
+/* Стили для кнопки балансировки */
+.balance-button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px auto;
+}
+
+.balance-button:hover {
+    background: linear-gradient(135deg, #2980b9, #1c6ea4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* Стили для прогресс-бара загрузки */
+.load-progress-container {
+    margin: 15px 0;
+}
+
+.load-progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.load-progress-bar {
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.load-progress-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
+.load-progress-target {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: #2c3e50;
+}
+
+.load-progress-text {
+    text-align: center;
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .balance-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .overload-warning,
+    .underload-info {
+        font-size: 0.75em;
+        padding: 5px 8px;
+    }
+}

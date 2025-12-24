@@ -16,7 +16,7 @@ import os
 import sys
 import socket
 
-app = FastAPI(title="Courier Delivery System")
+app = FastAPI(title="Courier Delivery System - Balance Edition")
 
 app.add_middleware(
     CORSMiddleware,
@@ -69,19 +69,25 @@ def load_initial_data():
         couriers = {}
         for courier_data in data.get("couriers", []):
             courier_id = str(courier_data['id'])
+            max_capacity = courier_data['max_capacity']
             couriers[courier_id] = {
                 "data": {
                     "id": courier_data['id'],
                     "name": courier_data['name'],
                     "transport_type": courier_data['transport_type'],
-                    "max_capacity": courier_data['max_capacity']
+                    "max_capacity": max_capacity
                 },
                 "current_capacity": 0.0,
                 "assigned_orders": [],
                 "status": "available",
-                "message_count": 0
+                "message_count": 0,
+                "location": "база",
+                "utilization": 0.0,
+                "is_overloaded": False,
+                "helps_provided": 0,
+                "problems_encountered": 0
             }
-            print(f"✅ WEB GUI: Загружен курьер: {courier_data['name']}")
+            print(f"✅ WEB GUI: Загружен курьер: {courier_data['name']} ({max_capacity}кг)")
 
         orders = {}
         for order_data in data.get("orders", []):
@@ -92,85 +98,151 @@ def load_initial_data():
                     "weight": order_data['weight'],
                     "description": order_data['description'],
                     "recipient": order_data.get('recipient', 'Не указан'),
-                    "recipient_phone": order_data.get('recipient_phone', '')
+                    "recipient_phone": order_data.get('recipient_phone', ''),
+                    "priority": order_data.get('priority', 'normal')
                 },
                 "status": "pending",
-                "assigned_courier": None
+                "assigned_courier": None,
+                "created_time": time.time()
             }
 
         orders_count = len(data.get("orders", []))
+        total_capacity = sum(c['max_capacity'] for c in data.get("couriers", []))
+
         print(f"✅ WEB GUI: Курьеров: {len(couriers)}, Заказов: {orders_count}")
-        return couriers, orders, orders_count
+        print(f"✅ WEB GUI: Общая грузоподъемность: {total_capacity}кг")
+
+        return couriers, orders, orders_count, total_capacity
 
     except Exception as e:
         print(f"❌ Ошибка загрузки: {e}")
-        # Данные по умолчанию
-        couriers = {
-            "1": {
-                "data": {
-                    "id": 1,
-                    "name": "Иван Петров",
-                    "transport_type": "car",
-                    "max_capacity": 50.0
-                },
-                "current_capacity": 0.0,
-                "assigned_orders": [],
-                "status": "available",
-                "message_count": 0
-            },
-            "2": {
-                "data": {
-                    "id": 2,
-                    "name": "Анна Сидорова",
-                    "transport_type": "bicycle",
-                    "max_capacity": 15.0
-                },
-                "current_capacity": 0.0,
-                "assigned_orders": [],
-                "status": "available",
-                "message_count": 0
-            }
-        }
+        # Данные по умолчанию для балансировки
+        return get_default_balanced_data()
 
-        orders = {
-            "101": {
-                "data": {
-                    "id": 101,
-                    "weight": 5.0,
-                    "description": "Срочный документ",
-                    "recipient": "ООО 'Компания'",
-                    "recipient_phone": "+79991230001"
-                },
-                "status": "pending",
-                "assigned_courier": None
-            },
-            "102": {
-                "data": {
-                    "id": 102,
-                    "weight": 3.0,
-                    "description": "Посылка с одеждой",
-                    "recipient": "Иванова Мария",
-                    "recipient_phone": "+79991230002"
-                },
-                "status": "pending",
-                "assigned_courier": None
-            }
-        }
 
-        return couriers, orders, 2
+def get_default_balanced_data():
+    """Данные по умолчанию для тестирования балансировки"""
+    couriers = {
+        "1": {
+            "data": {
+                "id": 1,
+                "name": "Иван Петров",
+                "transport_type": "car",
+                "max_capacity": 100.0
+            },
+            "current_capacity": 0.0,
+            "assigned_orders": [],
+            "status": "available",
+            "message_count": 0,
+            "location": "база",
+            "utilization": 0.0,
+            "is_overloaded": False,
+            "helps_provided": 0,
+            "problems_encountered": 0
+        },
+        "2": {
+            "data": {
+                "id": 2,
+                "name": "Анна Сидорова",
+                "transport_type": "bicycle",
+                "max_capacity": 25.0
+            },
+            "current_capacity": 0.0,
+            "assigned_orders": [],
+            "status": "available",
+            "message_count": 0,
+            "location": "база",
+            "utilization": 0.0,
+            "is_overloaded": False,
+            "helps_provided": 0,
+            "problems_encountered": 0
+        },
+        "3": {
+            "data": {
+                "id": 3,
+                "name": "Петр Иванов",
+                "transport_type": "motorcycle",
+                "max_capacity": 40.0
+            },
+            "current_capacity": 0.0,
+            "assigned_orders": [],
+            "status": "available",
+            "message_count": 0,
+            "location": "база",
+            "utilization": 0.0,
+            "is_overloaded": False,
+            "helps_provided": 0,
+            "problems_encountered": 0
+        }
+    }
+
+    orders = {
+        "101": {
+            "data": {
+                "id": 101,
+                "weight": 60.0,
+                "description": "ТЯЖЕЛЫЙ: Промышленное оборудование (тест балансировки)",
+                "recipient": "Завод 'Металл'",
+                "recipient_phone": "+79991230001",
+                "priority": "high"
+            },
+            "status": "pending",
+            "assigned_courier": None,
+            "created_time": time.time()
+        },
+        "102": {
+            "data": {
+                "id": 102,
+                "weight": 35.0,
+                "description": "Офисная мебель",
+                "recipient": "ООО 'ОфисПлюс'",
+                "recipient_phone": "+79991230002",
+                "priority": "normal"
+            },
+            "status": "pending",
+            "assigned_courier": None,
+            "created_time": time.time()
+        },
+        "103": {
+            "data": {
+                "id": 103,
+                "weight": 15.0,
+                "description": "Документы в банк",
+                "recipient": "Банк 'Финансы'",
+                "recipient_phone": "+79991230003",
+                "priority": "high"
+            },
+            "status": "pending",
+            "assigned_courier": None,
+            "created_time": time.time()
+        }
+    }
+
+    total_capacity = sum(c["data"]["max_capacity"] for c in couriers.values())
+    return couriers, orders, 3, total_capacity
 
 
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
-        initial_couriers, initial_orders, total_orders = load_initial_data()
+        initial_couriers, initial_orders, total_orders, total_capacity = load_initial_data()
 
         self.system_state = {
             "logs": [
                 {
                     "timestamp": time.time(),
                     "agent": "system",
-                    "message": "🖥️ Система мониторинга запущена"
+                    "message": "🖥️ Система мониторинга запущена (режим балансировки нагрузки)"
+                },
+                {
+                    "timestamp": time.time(),
+                    "agent": "system",
+                    "message": "🎯 Целевая загрузка системы: 80%"
+                },
+                {
+                    "timestamp": time.time(),
+                    "agent": "system",
+                    "message": "🔄 Режим перераспределения заказов: АКТИВЕН"
                 }
             ],
             "statistics": {
@@ -179,16 +251,26 @@ class ConnectionManager:
                 "assigned_orders": 0,
                 "pending_orders": total_orders,
                 "active_couriers": len(initial_couriers),
-                "total_capacity": sum(courier["data"]["max_capacity"] for courier in initial_couriers.values()),
+                "total_capacity": total_capacity,
                 "used_capacity": 0.0,
                 "system_load": 0.0,
-                "messages_exchanged": 0  # Инициализируем счетчик сообщений
+                "messages_exchanged": 0,
+                "target_load": 80.0,
+                "load_imbalance": 0.0,
+                "balance_efficiency": 0.0,
+                "transfers_completed": 0,
+                "help_requests": 0,
+                "balance_alerts": 0
             },
             "couriers": initial_couriers,
             "orders": initial_orders,
-            "communications": []  # Новая секция для общения
+            "communications": [],
+            "balance_history": []  # История изменений баланса
         }
-        print(f"✅ WEB GUI: Курьеров: {len(initial_couriers)}, Заказов: {total_orders}")
+
+        print(f"✅ WEB GUI: Инициализирована система балансировки")
+        print(f"   📊 Курьеров: {len(initial_couriers)}, Заказов: {total_orders}")
+        print(f"   🎯 Целевая загрузка: 80%")
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -227,15 +309,37 @@ class ConnectionManager:
 
     def add_communication(self, message: Dict[str, Any]):
         """Добавляет сообщение в историю общения"""
+        # ИЗМЕНЕНИЕ: Определяем отправителя и получателя для передачи заказов
+        sender = message.get("sender", "unknown")
+        receiver = message.get("receiver", "unknown")
+        msg_type = message.get("type", "unknown")
+        content = message.get("content", {})
+
+        # ИЗМЕНЕНИЕ: Для сообщений о передаче от координатора меняем отправителя/получателя
+        if msg_type in ["transfer_proposal_incoming", "transfer_proposal_outgoing"]:
+            is_direct = content.get("is_direct", False)
+
+            if is_direct:
+                # Если это прямое сообщение между курьерами
+                if "from_courier" in content:
+                    sender = content["from_courier"]
+                elif "from_courier_id" in content:
+                    sender = f"courier_{content['from_courier_id']}"
+
+                if "to_courier" in content:
+                    receiver = content["to_courier"]
+                elif "to_courier_id" in content:
+                    receiver = f"courier_{content['to_courier_id']}"
+
         # Форматируем сообщение для отображения
         formatted_msg = {
             "id": len(self.system_state["communications"]) + 1,
             "timestamp": time.time(),
             "time_str": time.strftime("%H:%M:%S", time.localtime()),
-            "sender": message.get("sender", "unknown"),
-            "receiver": message.get("receiver", "unknown"),
-            "type": message.get("type", "unknown"),
-            "content": message.get("content", {}),
+            "sender": sender,
+            "receiver": receiver,
+            "type": msg_type,
+            "content": content,
             "direction": message.get("direction", "unknown")
         }
 
@@ -248,11 +352,17 @@ class ConnectionManager:
         # Увеличиваем счетчик сообщений в статистике
         self.system_state["statistics"]["messages_exchanged"] += 1
 
+        # Считаем специальные типы сообщений
+        msg_type = message.get("type", "")
+        if "transfer" in msg_type or "offer" in msg_type:
+            self.system_state["statistics"]["transfers_completed"] += 1
+        elif "help" in msg_type:
+            self.system_state["statistics"]["help_requests"] += 1
+        elif "balance" in msg_type or "overload" in msg_type:
+            self.system_state["statistics"]["balance_alerts"] += 1
+
         # Рассылаем обновление статистики всем клиентам
-        asyncio.create_task(self.broadcast({
-            "type": "statistics_update",
-            "statistics": self.system_state["statistics"]
-        }))
+        self.update_balance_statistics()
 
         # Рассылаем обновление сообщения
         asyncio.create_task(self.broadcast({
@@ -261,14 +371,39 @@ class ConnectionManager:
             "total_messages": self.system_state["statistics"]["messages_exchanged"]
         }))
 
-        print(f"💬 Сообщение от {formatted_msg['sender']} к {formatted_msg['receiver']}: {formatted_msg['type']}")
+        # ИЗМЕНЕНИЕ: Выводим логи с учетом изменений
+        if msg_type in ["transfer_proposal_incoming", "transfer_proposal_outgoing"]:
+            from_name = content.get("from_courier_name", "Коллега")
+            to_name = content.get("to_courier_name", "Коллега")
+            order_id = content.get("order", {}).get("id", "N/A")
+
+            if msg_type == "transfer_proposal_incoming":
+                print(f"🔄 Сообщение от {from_name} к {to_name}: передача заказа #{order_id}")
+            else:
+                print(f"🔄 Сообщение от {from_name} к {to_name}: предложение передачи заказа #{order_id}")
+        else:
+            print(f"💬 Сообщение от {formatted_msg['sender']} к {formatted_msg['receiver']}: {formatted_msg['type']}")
 
     def update_courier(self, courier_id: str, updates: Dict[str, Any]):
+        """Обновляет данные курьера"""
         if courier_id in self.system_state["couriers"]:
+            # Обновляем утилизацию
+            if "current_capacity" in updates and "data" in self.system_state["couriers"][courier_id]:
+                current_capacity = updates.get("current_capacity", 0)
+                max_capacity = self.system_state["couriers"][courier_id]["data"]["max_capacity"]
+                utilization = (current_capacity / max_capacity * 100) if max_capacity > 0 else 0
+                updates["utilization"] = utilization
+                updates["is_overloaded"] = utilization > 80
+
             self.system_state["couriers"][courier_id].update(updates)
         else:
+            # Добавляем нового курьера
             self.system_state["couriers"][courier_id] = updates
 
+        # Обновляем статистику системы
+        self.update_balance_statistics()
+
+        # Рассылаем обновление
         asyncio.create_task(self.broadcast({
             "type": "courier_update",
             "courier_id": courier_id,
@@ -276,8 +411,17 @@ class ConnectionManager:
         }))
 
     def update_order(self, order_id: str, updates: Dict[str, Any]):
+        """Обновляет данные заказа"""
         if order_id in self.system_state["orders"]:
             self.system_state["orders"][order_id].update(updates)
+
+            # Если заказ доставлен, обновляем статистику
+            if updates.get("status") == "delivered":
+                self.system_state["statistics"]["delivered_orders"] += 1
+                self.system_state["statistics"]["assigned_orders"] = max(
+                    0, self.system_state["statistics"]["assigned_orders"] - 1
+                )
+                self.update_balance_statistics()
         else:
             self.system_state["orders"][order_id] = updates
 
@@ -288,20 +432,97 @@ class ConnectionManager:
         }))
 
     def update_statistics(self, new_stats: Dict[str, Any]):
+        """Обновляет статистику"""
         self.system_state["statistics"].update(new_stats)
+        self.update_balance_statistics()
 
+    def update_balance_statistics(self):
+        """Пересчитывает статистику балансировки"""
+        stats = self.system_state["statistics"]
+        couriers = self.system_state["couriers"]
+
+        # Пересчитываем загрузку системы
+        total_capacity = stats["total_capacity"]
+        used_capacity = sum(c.get("current_capacity", 0) for c in couriers.values())
+        system_load = (used_capacity / total_capacity * 100) if total_capacity > 0 else 0
+
+        stats["used_capacity"] = used_capacity
+        stats["system_load"] = system_load
+
+        # Пересчитываем количество активных курьеров и заказов
+        stats["active_couriers"] = len([c for c in couriers.values()
+                                        if c.get("status") in ["delivering", "collecting"]])
+        stats["pending_orders"] = len([o for o in self.system_state["orders"].values()
+                                       if o.get("status") == "pending"])
+        stats["assigned_orders"] = len([o for o in self.system_state["orders"].values()
+                                        if o.get("status") == "assigned"])
+
+        # Рассчитываем дисбаланс (стандартное отклонение утилизации)
+        utilizations = [c.get("utilization", 0) for c in couriers.values()]
+        if utilizations:
+            mean_util = sum(utilizations) / len(utilizations)
+            variance = sum((u - mean_util) ** 2 for u in utilizations) / len(utilizations)
+            stats["load_imbalance"] = variance ** 0.5
+        else:
+            stats["load_imbalance"] = 0
+
+        # Рассчитываем эффективность балансировки
+        target_load = stats.get("target_load", 80)
+        efficiency = 100 - abs(system_load - target_load)
+        stats["balance_efficiency"] = max(0, min(efficiency, 100))
+
+        # Добавляем запись в историю баланса
+        balance_record = {
+            "timestamp": time.time(),
+            "system_load": system_load,
+            "imbalance": stats["load_imbalance"],
+            "efficiency": stats["balance_efficiency"]
+        }
+        self.system_state["balance_history"].append(balance_record)
+
+        if len(self.system_state["balance_history"]) > 50:
+            self.system_state["balance_history"] = self.system_state["balance_history"][-50:]
+
+        # Рассылаем обновление
         asyncio.create_task(self.broadcast({
             "type": "statistics_update",
-            "statistics": self.system_state["statistics"]
+            "statistics": stats
         }))
 
     def send_communications_list(self):
         """Отправляет список сообщений"""
         asyncio.create_task(self.broadcast({
             "type": "communications_list",
-            "communications": self.system_state["communications"][-50:],  # Последние 50 сообщений
+            "communications": self.system_state["communications"][-50:],
             "total_messages": self.system_state["statistics"]["messages_exchanged"]
         }))
+
+    def send_balance_report(self):
+        """Отправляет отчет о балансировке"""
+        stats = self.system_state["statistics"]
+        couriers = self.system_state["couriers"]
+
+        # Анализируем загрузку курьеров
+        overloaded = [c for c in couriers.values() if c.get("is_overloaded", False)]
+        underloaded = [c for c in couriers.values()
+                       if c.get("utilization", 0) < 30 and c.get("current_capacity", 0) > 0]
+
+        report = {
+            "type": "balance_report",
+            "timestamp": time.time(),
+            "system_load": stats["system_load"],
+            "target_load": stats.get("target_load", 80),
+            "imbalance": stats["load_imbalance"],
+            "efficiency": stats["balance_efficiency"],
+            "overloaded_couriers": len(overloaded),
+            "underloaded_couriers": len(underloaded),
+            "transfers_completed": stats["transfers_completed"],
+            "status": "good" if stats["load_imbalance"] < 15 else
+            "warning" if stats["load_imbalance"] < 30 else
+            "critical"
+        }
+
+        asyncio.create_task(self.broadcast(report))
 
 
 manager = ConnectionManager()
@@ -362,6 +583,13 @@ async def update_statistics(request: Request):
         return {"status": "error", "message": str(e)}
 
 
+@app.get("/api/balance_report")
+async def get_balance_report():
+    """Возвращает отчет о балансировке"""
+    manager.send_balance_report()
+    return {"status": "success", "message": "Balance report sent"}
+
+
 @app.post("/api/upload-json")
 async def upload_json_file(file: UploadFile = File(...)):
     if not file.filename.endswith('.json'):
@@ -383,17 +611,29 @@ async def upload_json_file(file: UploadFile = File(...)):
         with open(original_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-        print(f"✅ WEB GUI: Новый сценарий: {file.filename}")
-        print(f"   Курьеров: {len(data.get('couriers', []))}")
-        print(f"   Заказов: {len(data.get('orders', []))}")
+        couriers_count = len(data.get('couriers', []))
+        orders_count = len(data.get('orders', []))
+        total_capacity = sum(c.get('max_capacity', 0) for c in data.get('couriers', []))
+
+        print(f"✅ WEB GUI: Загружен новый сценарий: {file.filename}")
+        print(f"   📊 Курьеров: {couriers_count}")
+        print(f"   📦 Заказов: {orders_count}")
+        print(f"   🏋️  Общая грузоподъемность: {total_capacity}кг")
+
+        # Создаем системное сообщение о загрузке сценария
+        manager.add_log(f"📂 Загружен сценарий: {file.filename}", "system")
+        manager.add_log(f"📊 Курьеров: {couriers_count}, Заказов: {orders_count}", "system")
+        manager.add_log(f"🏋️  Общая грузоподъемность: {total_capacity}кг", "system")
+        manager.add_log("🔄 Для применения сценария перезагрузите систему", "system")
 
         return JSONResponse({
             "status": "success",
-            "message": f"Файл загружен! Курьеров: {len(data.get('couriers', []))}, Заказов: {len(data.get('orders', []))}",
+            "message": f"Файл загружен! Курьеров: {couriers_count}, Заказов: {orders_count}",
             "requires_restart": True,
             "data": {
-                "couriers_count": len(data.get('couriers', [])),
-                "orders_count": len(data.get('orders', []))
+                "couriers_count": couriers_count,
+                "orders_count": orders_count,
+                "total_capacity": total_capacity
             }
         })
 
@@ -408,6 +648,7 @@ async def restart_system():
     """Перезапуск системы"""
     try:
         print("🔄 WEB GUI: Запускаем перезапуск системы...")
+        manager.add_log("🔄 Система перезапускается...", "system")
 
         # Немедленный ответ клиенту
         response = {"status": "success", "message": "Система перезапускается..."}
@@ -435,6 +676,9 @@ async def websocket_endpoint(websocket: WebSocket):
         # Отправляем историю общения
         manager.send_communications_list()
 
+        # Отправляем отчет о балансировке
+        manager.send_balance_report()
+
         while True:
             data = await websocket.receive_text()
             try:
@@ -444,6 +688,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 elif command.get("type") == "get_communications":
                     # Отправляем историю сообщений по запросу
                     manager.send_communications_list()
+                elif command.get("type") == "get_balance_report":
+                    # Отправляем отчет о балансировке
+                    manager.send_balance_report()
             except:
                 pass
 
@@ -457,6 +704,9 @@ if __name__ == "__main__":
     for port in ports:
         if is_port_free(port):
             print(f"🌐 Запускаем Web GUI на порту {port}")
+            print(f"🎯 Режим: Балансировка нагрузки")
+            print(f"🔄 Перераспределение заказов: АКТИВНО")
+            print(f"📊 Статистика балансировки: ВКЛЮЧЕНО")
             uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")
             break
         else:
