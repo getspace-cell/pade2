@@ -52,6 +52,14 @@
       "priority": "high"
     },
     {
+      "id": 2054,
+      "weight": 6.0,
+      "description": "Легко: письмо",
+      "recipient": "Завод 'Металл'",
+      "recipient_phone": "+79991231001",
+      "priority": "normal"
+    },
+    {
       "id": 202,
       "weight": 45.0,
       "description": "ТЯЖЕЛЫЙ: Офисная мебель (потребует перераспределения)",
@@ -139,5 +147,6 @@
       "recipient_phone": "+79991231012",
       "priority": "normal"
     }
-  ]
+  ],
+  "target_load_percent": 0.27
 }

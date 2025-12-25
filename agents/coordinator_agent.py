@@ -9,7 +9,7 @@ from pade.pade.acl.messages import ACLMessage
 
 
 class CoordinatorAgent(BaseAgent):
-    def __init__(self, aid, couriers_data, orders_data):
+    def __init__(self, aid, couriers_data, orders_data, target_load_percent=None):
         super().__init__(aid)
         self.couriers_data = couriers_data
         self.orders_data = orders_data
@@ -17,8 +17,11 @@ class CoordinatorAgent(BaseAgent):
         self.assigned_orders = []
         self.delivered_orders = []
 
-        # Целевая загрузка системы (80%)
-        self.target_load_percent = 0.8
+        if target_load_percent is not None:
+            self.target_load_percent = target_load_percent
+        else:
+            self.target_load_percent = 0.27
+        
 
         # Инициализируем курьеров
         self.courier_status = {}

@@ -65,6 +65,10 @@ def load_initial_data():
     try:
         with open("input_data.json", "r", encoding="utf-8") as f:
             data = json.load(f)
+        
+        target_load_percent = data.get("target_load_percent")  # значение по умолчанию
+        target_load_percentage = target_load_percent * 100
+
 
         couriers = {}
         for courier_data in data.get("couriers", []):
@@ -112,7 +116,7 @@ def load_initial_data():
         print(f"✅ WEB GUI: Курьеров: {len(couriers)}, Заказов: {orders_count}")
         print(f"✅ WEB GUI: Общая грузоподъемность: {total_capacity}кг")
 
-        return couriers, orders, orders_count, total_capacity
+        return couriers, orders, orders_count, total_capacity, target_load_percent
 
     except Exception as e:
         print(f"❌ Ошибка загрузки: {e}")
@@ -225,8 +229,7 @@ def get_default_balanced_data():
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
-        initial_couriers, initial_orders, total_orders, total_capacity = load_initial_data()
-
+        initial_couriers, initial_orders, total_orders, total_capacity, target_load_percent = load_initial_data()
         self.system_state = {
             "logs": [
                 {
@@ -267,6 +270,9 @@ class ConnectionManager:
             "communications": [],
             "balance_history": []  # История изменений баланса
         }
+
+        self.target_load_percent = target_load_percent
+
 
         print(f"✅ WEB GUI: Инициализирована система балансировки")
         print(f"   📊 Курьеров: {len(initial_couriers)}, Заказов: {total_orders}")
@@ -572,6 +578,28 @@ async def update_order(order_id: str, request: Request):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.get("/api/target_load")
+async def get_target_load():
+    """Возвращает целевую загрузку из системы"""
+    return {
+        "status": "success",
+        "target_load_percent": manager.target_load_percent,
+        "target_load_percentage": manager.target_load_percent * 100
+    }
+# В коде запуска системы добавьте получение target_load_percent из веб-интерфейса
+@app.post("/api/start-system")
+async def start_system():
+    try:
+        # Получаем целевую загрузку из менеджера веб-интерфейса
+        target_load_percent = manager.target_load_percent
+        
+        # Запускаем систему агентов с передачей target_load_percent
+        # Пример кода запуска (зависит от вашей реализации):
+        # agent_system.start(target_load_percent=target_load_percent)
+        
+        return {"status": "success", "target_load_percent": target_load_percent}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 @app.post("/api/update_statistics")
 async def update_statistics(request: Request):

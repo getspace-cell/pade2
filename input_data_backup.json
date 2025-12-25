@@ -24,82 +24,77 @@
     },
     {
       "id": 4,
-      "name": "Мария Козлова",
+      "name": "Мария Васильева",
       "transport_type": "foot",
-      "max_capacity": 5.0,
+      "max_capacity": 10.0,
       "contact": "+79991234570"
     }
   ],
   "orders": [
     {
-      "id": 301,
-      "weight": 1.5,
-      "description": "Письмо",
+      "id": 101,
+      "weight": 8.0,
+      "description": "Срочный документ в офис",
       "recipient": "ООО 'Компания'",
-      "recipient_phone": "+79991230201"
+      "recipient_phone": "+79991230001",
+      "priority": "high"
     },
     {
-      "id": 302,
-      "weight": 0.5,
-      "description": "Документы",
+      "id": 102,
+      "weight": 3.0,
+      "description": "Посылка с одеждой",
       "recipient": "Иванова Мария",
-      "recipient_phone": "+79991230202"
+      "recipient_phone": "+79991230002",
+      "priority": "normal"
     },
     {
-      "id": 303,
-      "weight": 2.0,
-      "description": "Мелкий пакет",
+      "id": 103,
+      "weight": 12.0,
+      "description": "Электроника",
       "recipient": "Петров Алексей",
-      "recipient_phone": "+79991230203"
+      "recipient_phone": "+79991230003",
+      "priority": "high"
     },
     {
-      "id": 304,
-      "weight": 1.0,
+      "id": 104,
+      "weight": 2.0,
       "description": "Лекарства",
       "recipient": "Сидорова Анна",
-      "recipient_phone": "+79991230204"
+      "recipient_phone": "+79991230004",
+      "priority": "urgent"
     },
     {
-      "id": 305,
+      "id": 105,
+      "weight": 25.0,
+      "description": "Оборудование для офиса",
+      "recipient": "ООО 'Офис'",
+      "recipient_phone": "+79991230005",
+      "priority": "normal"
+    },
+    {
+      "id": 106,
       "weight": 3.0,
       "description": "Книги",
-      "recipient": "ООО 'Офис'",
-      "recipient_phone": "+79991230205"
-    },
-    {
-      "id": 306,
-      "weight": 2.5,
-      "description": "Сувениры",
       "recipient": "Васильев Дмитрий",
-      "recipient_phone": "+79991230206"
+      "recipient_phone": "+79991230006",
+      "priority": "normal"
     },
     {
-      "id": 307,
-      "weight": 1.0,
-      "description": "Цветы",
+      "id": 107,
+      "weight": 7.0,
+      "description": "Товары для дома",
       "recipient": "Николаева Ольга",
-      "recipient_phone": "+79991230207"
+      "recipient_phone": "+79991230007",
+      "priority": "normal"
     },
     {
-      "id": 308,
-      "weight": 0.8,
-      "description": "Конфеты",
-      "recipient": "Смирнов Иван",
-      "recipient_phone": "+79991230208"
-    },
-    {
-      "id": 309,
-      "weight": 2.2,
-      "description": "Косметика",
-      "recipient": "Кузнецова Елена",
-      "recipient_phone": "+79991230209"
-    },
-    {
-      "id": 310,
-      "weight": 1.7,
-      "description": "Аксессуары",
-      "recipient": "Федоров Сергей",
-      "recipient_phone": "+79991230210"
+      "id": 108,
+      "weight": 18.0,
+      "description": "Спортивный инвентарь",
+      "recipient": "Спортклуб 'Энергия'",
+      "recipient_phone": "+79991230008",
+      "priority": "normal"
     }
-  ]
+  ],
+  "target_load_percent": 0.6
 }
