@@ -3,150 +3,159 @@
   "couriers": [
     {
       "id": 1,
-      "name": "Иван Петров",
+      "name": "Михаил Калинин",
       "transport_type": "car",
       "max_capacity": 100.0,
-      "contact": "+79991234567",
-      "speed": 40
+      "contact": "+79990000001",
+      "speed": 40,
+      "district": "калининский"
+    },
+    {
+      "id": 100,
+      "name": "Михаил Калинин(Брат)",
+      "transport_type": "car",
+      "max_capacity": 100.0,
+      "contact": "+79990000001",
+      "speed": 40,
+      "district": "калининский"
     },
     {
       "id": 2,
-      "name": "Анна Сидорова",
-      "transport_type": "bicycle",
-      "max_capacity": 25.0,
-      "contact": "+79991234568",
-      "speed": 15
+      "name": "Виктор Советов",
+      "transport_type": "car",
+      "max_capacity": 100.0,
+      "contact": "+79990000002",
+      "speed": 40,
+      "district": "советский"
     },
     {
       "id": 3,
-      "name": "Петр Иванов",
-      "transport_type": "motorcycle",
-      "max_capacity": 40.0,
-      "contact": "+79991234569",
-      "speed": 35
+      "name": "Владимир Ленинский",
+      "transport_type": "car",
+      "max_capacity": 100.0,
+      "contact": "+79990000003",
+      "speed": 40,
+      "district": "ленинский"
     },
     {
       "id": 4,
-      "name": "Мария Васильева",
+      "name": "Сергей Киров",
       "transport_type": "car",
-      "max_capacity": 1005.0,
-      "contact": "+79991234570",
-      "speed": 5
-    },
-    {
-      "id": 5,
-      "name": "Дмитрий Николаев",
-      "transport_type": "car",
-      "max_capacity": 80.0,
-      "contact": "+79991234571",
-      "speed": 30
+      "max_capacity": 100.0,
+      "contact": "+79990000004",
+      "speed": 40,
+      "district": "кировский"
     }
   ],
   "orders": [
     {
-      "id": 201,
-      "weight": 60.0,
-      "description": "ТЯЖЕЛЫЙ: Промышленное оборудование (вызовет перегрузку)",
-      "recipient": "Завод 'Металл'",
-      "recipient_phone": "+79991231001",
-      "priority": "high"
+      "id": 101,
+      "weight": 40.0,
+      "description": "Промышленные детали",
+      "recipient": "Завод 'Калининец'",
+      "recipient_phone": "+79991111001",
+      "priority": "normal",
+      "district": "калининский"
     },
     {
-      "id": 2054,
-      "weight": 6.0,
-      "description": "Легко: письмо",
-      "recipient": "Завод 'Металл'",
-      "recipient_phone": "+79991231001",
-      "priority": "normal"
+      "id": 102,
+      "weight": 39.0,
+      "description": "Строительные смеси",
+      "recipient": "Стройка 'Центральная'",
+      "recipient_phone": "+79991111002",
+      "priority": "normal",
+      "district": "калининский"
     },
     {
-      "id": 202,
-      "weight": 45.0,
-      "description": "ТЯЖЕЛЫЙ: Офисная мебель (потребует перераспределения)",
-      "recipient": "ООО 'ОфисПлюс'",
-      "recipient_phone": "+79991231002",
-      "priority": "normal"
+      "id": 103,
+      "weight": 40.0,
+      "description": "Офисное кресла",
+      "recipient": "БЦ 'Калина'",
+      "recipient_phone": "+79991111003",
+      "priority": "normal",
+      "district": "калининский"
     },
     {
-      "id": 203,
-      "weight": 30.0,
-      "description": "Спортивный инвентарь (средняя нагрузка)",
-      "recipient": "Спортклуб 'Атлет'",
-      "recipient_phone": "+79991231003",
-      "priority": "normal"
+      "id": 104,
+      "weight": 40.0,
+      "description": "Арендное оборудование",
+      "recipient": "Технопарк 'Северный'",
+      "recipient_phone": "+79991111004",
+      "priority": "normal",
+      "district": "советский"
     },
     {
-      "id": 204,
-      "weight": 20.0,
-      "description": "Бытовая техника",
-      "recipient": "Магазин 'ТехноМир'",
-      "recipient_phone": "+79991231004",
-      "priority": "normal"
-    },
-    {
-      "id": 205,
-      "weight": 10.0,
-      "description": "Документы в банк",
-      "recipient": "Банк 'Финансы'",
-      "recipient_phone": "+79991231005",
-      "priority": "high"
-    },
-    {
-      "id": 206,
-      "weight": 35.0,
-      "description": "Строительные материалы",
-      "recipient": "Стройка №7",
-      "recipient_phone": "+79991231006",
-      "priority": "normal"
-    },
-    {
-      "id": 207,
-      "weight": 15.0,
-      "description": "Товары для ремонта",
-      "recipient": "Строительный магазин",
-      "recipient_phone": "+79991231007",
-      "priority": "normal"
-    },
-    {
-      "id": 208,
-      "weight": 25.0,
-      "description": "Компьютерная техника",
-      "recipient": "ИТ компания 'Техно'",
-      "recipient_phone": "+79991231008",
-      "priority": "high"
-    },
-    {
-      "id": 209,
-      "weight": 8.0,
-      "description": "Лекарства в больницу",
-      "recipient": "Больница №1",
-      "recipient_phone": "+79991231009",
-      "priority": "urgent"
-    },
-    {
-      "id": 210,
-      "weight": 50.0,
-      "description": "ТЯЖЕЛЫЙ: Промышленные детали (тест перераспределения)",
-      "recipient": "Завод 'Деталь'",
-      "recipient_phone": "+79991231010",
-      "priority": "normal"
-    },
-    {
-      "id": 211,
-      "weight": 12.0,
-      "description": "Канцелярские товары",
-      "recipient": "Школа №15",
-      "recipient_phone": "+79991231011",
-      "priority": "normal"
-    },
-    {
-      "id": 212,
-      "weight": 28.0,
+      "id": 105,
+      "weight": 39.0,
       "description": "Товары для магазина",
-      "recipient": "Супермаркет 'Продукты'",
-      "recipient_phone": "+79991231012",
-      "priority": "normal"
+      "recipient": "ТЦ 'Советский'",
+      "recipient_phone": "+79991111005",
+      "priority": "normal",
+      "district": "советский"
+    },
+    {
+      "id": 106,
+      "weight": 40.0,
+      "description": "Продукты для кафе",
+      "recipient": "Кафе 'У Совета'",
+      "recipient_phone": "+79991111006",
+      "priority": "normal",
+      "district": "советский"
+    },
+    {
+      "id": 107,
+      "weight": 40.0,
+      "description": "Спортивный инвентарь",
+      "recipient": "Стадион 'Ленинец'",
+      "recipient_phone": "+79991111007",
+      "priority": "normal",
+      "district": "ленинский"
+    },
+    {
+      "id": 108,
+      "weight": 39.0,
+      "description": "Книги и учебники",
+      "recipient": "Университет им. Ленина",
+      "recipient_phone": "+79991111008",
+      "priority": "normal",
+      "district": "ленинский"
+    },
+    {
+      "id": 109,
+      "weight": 40.0,
+      "description": "Медицинское оборудование",
+      "recipient": "Поликлиника №1",
+      "recipient_phone": "+79991111009",
+      "priority": "normal",
+      "district": "ленинский"
+    },
+    {
+      "id": 110,
+      "weight": 40.0,
+      "description": "Электронные компоненты",
+      "recipient": "Завод 'Микрон'",
+      "recipient_phone": "+79991111010",
+      "priority": "normal",
+      "district": "кировский"
+    },
+    {
+      "id": 111,
+      "weight": 39.0,
+      "description": "Мебель для офиса",
+      "recipient": "Администрация Кировского р-на",
+      "recipient_phone": "+79991111011",
+      "priority": "normal",
+      "district": "кировский"
+    },
+    {
+      "id": 112,
+      "weight": 40.0,
+      "description": "Химические реагенты",
+      "recipient": "НИИ 'Прогресс'",
+      "recipient_phone": "+79991111012",
+      "priority": "normal",
+      "district": "кировский"
     }
   ],
-  "target_load_percent": 0.27
+  "target_load_percent": 0.8
 }

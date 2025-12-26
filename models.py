@@ -13,6 +13,13 @@ class TransportType(str, Enum):
     FOOT = "foot"
 
 
+class District(str, Enum):
+    KALININSKY = "калининский"
+    SOVETSKY = "советский"
+    LENINSKY = "ленинский"
+    KIROVSKY = "кировский"
+
+
 class OrderStatus(str, Enum):
     PENDING = "pending"
     ASSIGNED = "assigned"
@@ -75,6 +82,7 @@ class Courier:
         self.contact = data.get("contact", "")
         self.speed = data.get("speed", 10)
         self.message_history = []
+        self.district = data.get("district", "калининский")  # НОВОЕ ПОЛЕ
 
 
 class Order:
@@ -91,6 +99,7 @@ class Order:
         self.assigned_time = None
         self.delivered_time = None
         self.priority = data.get("priority", "normal")
+        self.district = data.get("district", "калининский")  # НОВОЕ ПОЛЕ
 
 
 class CommunicationLog:

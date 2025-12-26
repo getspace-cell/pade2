@@ -312,6 +312,7 @@ class CourierSystemGUI {
         const ordersCount = courier.assigned_orders ? courier.assigned_orders.length : 0;
         const messageCount = courier.message_count || 0;
         const utilization = courier.utilization || loadPercent;
+        const district = courier.district || 'Грозный';
 
         // Определяем перегрузку
         let balanceClass = '';
@@ -351,6 +352,10 @@ class CourierSystemGUI {
                     <div>
                         <span>Сообщений:</span>
                         <span>${messageCount}</span>
+                    </div>
+                    <div>
+                        <span>Район:</span>
+                        <span>${district}</span>
                     </div>
                 </div>
                 <div class="progress-bar">
@@ -404,6 +409,7 @@ class CourierSystemGUI {
                 <div class="order-details">
                     <div class="order-weight">${data.weight} кг</div>
                     <div class="order-description">${data.description}</div>
+                    <div class="order-description">${data.district}</div>
                     <div class="order-recipient">
                         <span>${data.recipient || 'Получатель не указан'}</span>
                         <span>${data.assigned_courier ? `🚗 ${data.assigned_courier}` : ''}</span>

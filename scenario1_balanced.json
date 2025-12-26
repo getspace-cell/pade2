@@ -5,96 +5,229 @@
       "id": 1,
       "name": "Иван Петров",
       "transport_type": "car",
-      "max_capacity": 50.0,
-      "contact": "+79991234567"
+      "max_capacity": 100.0,
+      "contact": "+79991234567",
+      "speed": 40,
+      "district": "калининский"
     },
     {
       "id": 2,
       "name": "Анна Сидорова",
       "transport_type": "bicycle",
-      "max_capacity": 15.0,
-      "contact": "+79991234568"
+      "max_capacity": 25.0,
+      "contact": "+79991234568",
+      "speed": 15,
+      "district": "калининский"
     },
     {
       "id": 3,
       "name": "Петр Иванов",
       "transport_type": "motorcycle",
-      "max_capacity": 25.0,
-      "contact": "+79991234569"
+      "max_capacity": 40.0,
+      "contact": "+79991234569",
+      "speed": 35,
+      "district": "советский"
     },
     {
       "id": 4,
       "name": "Мария Васильева",
-      "transport_type": "foot",
-      "max_capacity": 10.0,
-      "contact": "+79991234570"
+      "transport_type": "car",
+      "max_capacity": 80.0,
+      "contact": "+79991234570",
+      "speed": 40,
+      "district": "советский"
+    },
+    {
+      "id": 5,
+      "name": "Дмитрий Николаев",
+      "transport_type": "car",
+      "max_capacity": 80.0,
+      "contact": "+79991234571",
+      "speed": 30,
+      "district": "ленинский"
+    },
+    {
+      "id": 6,
+      "name": "Елена Смирнова",
+      "transport_type": "bicycle",
+      "max_capacity": 20.0,
+      "contact": "+79991234572",
+      "speed": 15,
+      "district": "ленинский"
+    },
+    {
+      "id": 7,
+      "name": "Алексей Кузнецов",
+      "transport_type": "motorcycle",
+      "max_capacity": 35.0,
+      "contact": "+79991234573",
+      "speed": 35,
+      "district": "кировский"
+    },
+    {
+      "id": 8,
+      "name": "Ольга Морозова",
+      "transport_type": "car",
+      "max_capacity": 90.0,
+      "contact": "+79991234574",
+      "speed": 40,
+      "district": "кировский"
     }
   ],
   "orders": [
     {
-      "id": 101,
-      "weight": 8.0,
-      "description": "Срочный документ в офис",
+      "id": 301,
+      "weight": 60.0,
+      "description": "Промышленное оборудование",
+      "recipient": "Завод 'Металл'",
+      "recipient_phone": "+79991231001",
+      "priority": "high",
+      "district": "калининский"
+    },
+    {
+      "id": 302,
+      "weight": 15.0,
+      "description": "Документы",
       "recipient": "ООО 'Компания'",
-      "recipient_phone": "+79991230001",
-      "priority": "high"
+      "recipient_phone": "+79991231002",
+      "priority": "urgent",
+      "district": "калининский"
     },
     {
-      "id": 102,
-      "weight": 3.0,
-      "description": "Посылка с одеждой",
-      "recipient": "Иванова Мария",
-      "recipient_phone": "+79991230002",
-      "priority": "normal"
+      "id": 303,
+      "weight": 30.0,
+      "description": "Офисная мебель",
+      "recipient": "БЦ 'Центр'",
+      "recipient_phone": "+79991231003",
+      "priority": "normal",
+      "district": "калининский"
     },
     {
-      "id": 103,
+      "id": 304,
+      "weight": 8.0,
+      "description": "Медикаменты",
+      "recipient": "Аптека №5",
+      "recipient_phone": "+79991231004",
+      "priority": "urgent",
+      "district": "калининский"
+    },
+    {
+      "id": 305,
+      "weight": 45.0,
+      "description": "Строительные материалы",
+      "recipient": "Стройка №3",
+      "recipient_phone": "+79991231005",
+      "priority": "normal",
+      "district": "советский"
+    },
+    {
+      "id": 306,
+      "weight": 20.0,
+      "description": "Бытовая техника",
+      "recipient": "Магазин 'Техно'",
+      "recipient_phone": "+79991231006",
+      "priority": "normal",
+      "district": "советский"
+    },
+    {
+      "id": 307,
+      "weight": 35.0,
+      "description": "Товары для ресторана",
+      "recipient": "Ресторан 'Вкус'",
+      "recipient_phone": "+79991231007",
+      "priority": "high",
+      "district": "советский"
+    },
+    {
+      "id": 308,
       "weight": 12.0,
-      "description": "Электроника",
-      "recipient": "Петров Алексей",
-      "recipient_phone": "+79991230003",
-      "priority": "high"
+      "description": "Канцелярия",
+      "recipient": "Школа №10",
+      "recipient_phone": "+79991231008",
+      "priority": "normal",
+      "district": "советский"
     },
     {
-      "id": 104,
-      "weight": 2.0,
-      "description": "Лекарства",
-      "recipient": "Сидорова Анна",
-      "recipient_phone": "+79991230004",
-      "priority": "urgent"
+      "id": 309,
+      "weight": 50.0,
+      "description": "Спортивное оборудование",
+      "recipient": "Фитнес-центр",
+      "recipient_phone": "+79991231009",
+      "priority": "normal",
+      "district": "ленинский"
     },
     {
-      "id": 105,
-      "weight": 25.0,
-      "description": "Оборудование для офиса",
-      "recipient": "ООО 'Офис'",
-      "recipient_phone": "+79991230005",
-      "priority": "normal"
-    },
-    {
-      "id": 106,
-      "weight": 3.0,
-      "description": "Книги",
-      "recipient": "Васильев Дмитрий",
-      "recipient_phone": "+79991230006",
-      "priority": "normal"
-    },
-    {
-      "id": 107,
-      "weight": 7.0,
-      "description": "Товары для дома",
-      "recipient": "Николаева Ольга",
-      "recipient_phone": "+79991230007",
-      "priority": "normal"
-    },
-    {
-      "id": 108,
+      "id": 310,
       "weight": 18.0,
-      "description": "Спортивный инвентарь",
-      "recipient": "Спортклуб 'Энергия'",
-      "recipient_phone": "+79991230008",
-      "priority": "normal"
+      "description": "Запчасти для автомобилей",
+      "recipient": "Автосервис 'Мастер'",
+      "recipient_phone": "+79991231010",
+      "priority": "high",
+      "district": "ленинский"
+    },
+    {
+      "id": 311,
+      "weight": 25.0,
+      "description": "Продукты питания",
+      "recipient": "Супермаркет 'Продукты'",
+      "recipient_phone": "+79991231011",
+      "priority": "normal",
+      "district": "ленинский"
+    },
+    {
+      "id": 312,
+      "weight": 40.0,
+      "description": "Электроника",
+      "recipient": "Магазин 'Электроника'",
+      "recipient_phone": "+79991231012",
+      "priority": "high",
+      "district": "кировский"
+    },
+    {
+      "id": 143,
+      "weight": 40.0,
+      "description": "Электроника",
+      "recipient": "Магазин 'Электроника'",
+      "recipient_phone": "+79991231012",
+      "priority": "high",
+      "district": "ленинский"
+    },
+    {
+      "id": 144,
+      "weight": 4.0,
+      "description": "Лекарства для больницы",
+      "recipient": "Больница №2",
+      "recipient_phone": "+79991231014",
+      "priority": "urgent",
+      "district": "Ленинский"
+    },
+    {
+      "id": 313,
+      "weight": 28.0,
+      "description": "Мебель для дома",
+      "recipient": "Мебельный салон",
+      "recipient_phone": "+79991231013",
+      "priority": "normal",
+      "district": "кировский"
+    },
+    {
+      "id": 314,
+      "weight": 10.0,
+      "description": "Лекарства для больницы",
+      "recipient": "Больница №2",
+      "recipient_phone": "+79991231014",
+      "priority": "urgent",
+      "district": "кировский"
+    },
+    {
+      "id": 315,
+      "weight": 22.0,
+      "description": "Книги для библиотеки",
+      "recipient": "Библиотека им. Пушкина",
+      "recipient_phone": "+79991231015",
+      "priority": "normal",
+      "district": "кировский"
     }
   ],
-  "target_load_percent": 0.60
+  "target_load_percent": 0.27
 }

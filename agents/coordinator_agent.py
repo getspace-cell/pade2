@@ -117,18 +117,27 @@ class CoordinatorAgent(BaseAgent):
         return utilization
 
     def find_courier_for_balanced_load(self, order):
-        """Находит курьера для заказа с учетом балансировки нагрузки"""
+        """Находит курьера для заказа с учетом балансировки нагрузки И РАЙОНА"""
         # Если заказ уже в процессе перераспределения, возвращаем None
         if order.get('in_redistribution_queue', False):
             return None
 
         order_weight = order["weight"]
+        order_district = order.get("district")  # НОВОЕ: получаем район заказа
         suitable_couriers = []
 
         for courier in self.couriers_data:
             courier_id = str(courier['id'])
+            
+            courier_district = courier.get("district")  # НОВОЕ: получаем район курьера
+            
+            # НОВОЕ: Проверяем соответствие района
+            if courier_district != order_district:
+                continue  # Пропускаем курьера из другого района
+            
             current_load = self.courier_load.get(courier_id, 0.0)
             capacity = courier['max_capacity']
+            print("Курьер",courier["name"]," из района", courier["district"], "принял заказ", order["id"], "для района", order_district )
 
             # Проверяем, сможет ли курьер взять заказ
             if current_load + order_weight <= capacity:
@@ -151,7 +160,7 @@ class CoordinatorAgent(BaseAgent):
                 })
 
         if not suitable_couriers:
-            self.log(f"❌ Нет подходящих курьеров для заказа #{order['id']} ({order['weight']}кг)")
+            self.log(f"❌ Нет подходящих курьеров для заказа #{order['id']} ({order['weight']}кг) в районе {order_district}")
 
             # Пытаемся организовать совместную доставку или перераспределение
             self.add_to_redistribution_queue(order)
@@ -160,9 +169,9 @@ class CoordinatorAgent(BaseAgent):
         # Выбираем курьера, который ближе всего к целевой загрузке
         best_courier = min(suitable_couriers, key=lambda x: x["distance_from_target"])
 
-        self.log(f"🎯 Заказ #{order['id']} → курьер {best_courier['courier']['name']} "
-                 f"(загрузка: {best_courier['current_utilization']:.1f}% → {best_courier['new_utilization']:.1f}%, "
-                 f"расстояние от цели: {best_courier['distance_from_target']:.1f}%)")
+        self.log(f"🎯 Заказ #{order['id']} (район: {order_district}) → курьер {best_courier['courier']['name']} "
+                f"(загрузка: {best_courier['current_utilization']:.1f}% → {best_courier['new_utilization']:.1f}%, "
+                f"расстояние от цели: {best_courier['distance_from_target']:.1f}%)")
 
         return best_courier["courier_id"]
 
@@ -328,57 +337,73 @@ class CoordinatorAgent(BaseAgent):
             self.log(f"📊 Баланс в норме. Перегруженных: {len(overloaded_couriers)}, "
                      f"Недогруженных: {len(underloaded_couriers)}")
 
+        # В том же файле agents/coordinator_agent.py
+        # Обновляем метод initiate_load_redistribution:
+
     def initiate_load_redistribution(self, overloaded, underloaded):
-        """Инициирует перераспределение нагрузки с учетом баланса"""
-        self.log("⚖️  ИНИЦИИРУЮ УМНОЕ ПЕРЕРАСПРЕДЕЛЕНИЕ НАГРУЗКИ:")
+            """Инициирует перераспределение нагрузки с учетом баланса И РАЙОНОВ"""
+            self.log("⚖️  ИНИЦИИРУЮ УМНОЕ ПЕРЕРАСПРЕДЕЛЕНИЕ НАГРУЗКИ С УЧЕТОМ РАЙОНОВ:")
 
-        # Сортируем перегруженных по степени перегрузки (от самых перегруженных)
-        overloaded_sorted = sorted(overloaded, key=lambda x: x['utilization'], reverse=True)
+            # Сортируем перегруженных по степени перегрузки (от самых перегруженных)
+            overloaded_sorted = sorted(overloaded, key=lambda x: x['utilization'], reverse=True)
 
-        # Сортируем недогруженных по степени недогрузки (от самых недогруженных)
-        underloaded_sorted = sorted(underloaded, key=lambda x: x['utilization'])
+            # Сортируем недогруженных по степени недогрузки (от самых недогруженных)
+            underloaded_sorted = sorted(underloaded, key=lambda x: x['utilization'])
 
-        total_transfers = 0
+            total_transfers = 0
 
-        for overloaded_courier in overloaded_sorted:
-            self.log(f"   📊 {overloaded_courier['name']}: {overloaded_courier['utilization']:.1f}% загрузки")
+            for overloaded_courier in overloaded_sorted:
+                courier_data = next((c for c in self.couriers_data if str(c['id']) == overloaded_courier['id']), None)
+                if not courier_data:
+                    continue
+                    
+                overloaded_district = courier_data.get('district', 'калининский')  # НОВОЕ
+                
+                self.log(f"   📊 {overloaded_courier['name']} (район: {overloaded_district}): {overloaded_courier['utilization']:.1f}% загрузки")
 
-            # Рассчитываем целевую нагрузку для этого курьера после перераспределения
-            target_utilization = self.target_load_percent * 100  # 80%
-            current_utilization = overloaded_courier['utilization']
+                # Рассчитываем целевую нагрузку для этого курьера после перераспределения
+                target_utilization = self.target_load_percent * 100  # 80%
+                current_utilization = overloaded_courier['utilization']
 
-            # Сколько процентов нужно сбросить, чтобы достичь целевой нагрузки
-            excess_percent = max(0, current_utilization - target_utilization)
+                # Сколько процентов нужно сбросить, чтобы достичь целевой нагрузки
+                excess_percent = max(0, current_utilization - target_utilization)
 
-            # Если перегрузка менее 5%, пропускаем
-            if excess_percent < 5:
-                self.log(f"   ⏩ Пропускаем {overloaded_courier['name']} - перегрузка всего {excess_percent:.1f}%")
-                continue
+                # Если перегрузка менее 5%, пропускаем
+                if excess_percent < 5:
+                    self.log(f"   ⏩ Пропускаем {overloaded_courier['name']} - перегрузка всего {excess_percent:.1f}%")
+                    continue
 
-            # Рассчитываем сколько кг нужно сбросить
-            capacity = overloaded_courier['capacity']
-            excess_kg = capacity * (excess_percent / 100)
+                # Рассчитываем сколько кг нужно сбросить
+                capacity = overloaded_courier['capacity']
+                excess_kg = capacity * (excess_percent / 100)
 
-            self.log(f"   📉 Нужно сбросить {excess_kg:.1f}кг ({excess_percent:.1f}%) для достижения 80%")
+                self.log(f"   📉 Нужно сбросить {excess_kg:.1f}кг ({excess_percent:.1f}%) для достижения 80%")
 
-            # Сортируем заказы по весу (от самых тяжелых)
-            order_ids_sorted = sorted(
-                overloaded_courier['orders'],
-                key=lambda oid: self.get_order_weight(oid),
-                reverse=True
-            )
+                # Сортируем заказы по весу (от самых тяжелых)
+                order_ids_sorted = sorted(
+                    overloaded_courier['orders'],
+                    key=lambda oid: self.get_order_weight(oid),
+                    reverse=True
+                )
 
-            # Подбираем заказы для передачи
-            transferred_kg = 0
-            orders_to_transfer = []
+                # Подбираем заказы для передачи
+                transferred_kg = 0
+                orders_to_transfer = []
 
-            for order_id in order_ids_sorted:
-                order_weight = self.get_order_weight(order_id)
-
-                # Если добавление этого заказа не превысит необходимый сброс
-                if transferred_kg + order_weight <= excess_kg:
+                for order_id in order_ids_sorted:
                     order = next((o for o in self.assigned_orders if o['id'] == order_id), None)
-                    if order:
+                    if not order:
+                        continue
+                        
+                    order_weight = order['weight']
+                    order_district = order.get('district', 'калининский')  # НОВОЕ
+                    
+                    # НОВОЕ: Проверяем район заказа
+                    if order_district != overloaded_district:
+                        continue  # Заказ из другого района, не можем передать
+
+                    # Если добавление этого заказа не превысит необходимый сброс
+                    if transferred_kg + order_weight <= excess_kg:
                         orders_to_transfer.append({
                             'order': order,
                             'weight': order_weight
@@ -389,79 +414,92 @@ class CoordinatorAgent(BaseAgent):
                         if transferred_kg >= excess_kg * 0.8:  # Сбрасываем 80% от избытка
                             break
 
-            if not orders_to_transfer:
-                self.log(f"   ❌ Нет подходящих заказов для передачи от {overloaded_courier['name']}")
-                continue
+                if not orders_to_transfer:
+                    self.log(f"   ❌ Нет подходящих заказов для передачи от {overloaded_courier['name']}")
+                    continue
 
-            self.log(f"   📤 Подготовлено к передаче {len(orders_to_transfer)} заказов ({transferred_kg:.1f}кг)")
+                self.log(f"   📤 Подготовлено к передаче {len(orders_to_transfer)} заказов ({transferred_kg:.1f}кг)")
 
-            # Распределяем заказы между недогруженными курьерами
-            for transfer_data in orders_to_transfer:
-                order = transfer_data['order']
-                order_weight = transfer_data['weight']
+                # Распределяем заказы между недогруженными курьерами ИЗ ТОГО ЖЕ РАЙОНА
+                for transfer_data in orders_to_transfer:
+                    order = transfer_data['order']
+                    order_weight = transfer_data['weight']
+                    order_district = order.get('district', 'калининский')  # НОВОЕ
 
-                # Ищем лучшего кандидата для получения заказа
-                best_candidate = None
-                best_score = -float('inf')
+                    # Ищем лучшего кандидата для получения заказа ИЗ ТОГО ЖЕ РАЙОНА
+                    best_candidate = None
+                    best_score = -float('inf')
 
-                for underloaded_courier in underloaded_sorted:
-                    # Проверяем вместимость
-                    available_capacity = underloaded_courier['available_capacity']
-                    if order_weight > available_capacity:
-                        continue
+                    for underloaded_courier in underloaded_sorted:
+                        # НОВОЕ: Получаем район недогруженного курьера
+                        underloaded_courier_data = next((c for c in self.couriers_data 
+                                                        if str(c['id']) == underloaded_courier['id']), None)
+                        if not underloaded_courier_data:
+                            continue
+                            
+                        underloaded_district = underloaded_courier_data.get('district', 'калининский')
+                        
+                        # НОВОЕ: Проверяем соответствие района
+                        if underloaded_district != order_district:
+                            continue  # Пропускаем курьера из другого района
+                        
+                        # Проверяем вместимость
+                        available_capacity = underloaded_courier['available_capacity']
+                        if order_weight > available_capacity:
+                            continue
 
-                    # Рассчитываем новую загрузку
-                    current_load = self.courier_load.get(underloaded_courier['id'], 0.0)
-                    new_utilization = ((current_load + order_weight) / underloaded_courier['capacity']) * 100
+                        # Рассчитываем новую загрузку
+                        current_load = self.courier_load.get(underloaded_courier['id'], 0.0)
+                        new_utilization = ((current_load + order_weight) / underloaded_courier['capacity']) * 100
 
-                    # Оценка кандидата: насколько близко к 80% он будет после получения
-                    distance_from_target = abs(new_utilization - target_utilization)
+                        # Оценка кандидата: насколько близко к 80% он будет после получения
+                        distance_from_target = abs(new_utilization - target_utilization)
 
-                    # Предпочтение тем, кто станет ближе к 80%
-                    score = 100 - distance_from_target
+                        # Предпочтение тем, кто станет ближе к 80%
+                        score = 100 - distance_from_target
 
-                    # Бонус за меньшую текущую загрузку (чтобы распределять равномерно)
-                    score += (target_utilization - underloaded_courier['utilization']) * 0.5
+                        # Бонус за меньшую текущую загрузку (чтобы распределять равномерно)
+                        score += (target_utilization - underloaded_courier['utilization']) * 0.5
 
-                    if score > best_score:
-                        best_score = score
-                        best_candidate = underloaded_courier
+                        if score > best_score:
+                            best_score = score
+                            best_candidate = underloaded_courier
 
-                if best_candidate:
-                    # Предлагаем передачу
-                    success = self.propose_order_transfer(
-                        overloaded_courier['id'],
-                        best_candidate['id'],
-                        order
-                    )
+                    if best_candidate:
+                        # Предлагаем передачу
+                        success = self.propose_order_transfer(
+                            overloaded_courier['id'],
+                            best_candidate['id'],
+                            order
+                        )
 
-                    if success:
-                        total_transfers += 1
+                        if success:
+                            total_transfers += 1
 
-                        # Обновляем доступную емкость кандидата
-                        best_candidate['available_capacity'] -= order_weight
+                            # Обновляем доступную емкость кандидата
+                            best_candidate['available_capacity'] -= order_weight
 
-                        # Обновляем загрузку кандидата для следующих итераций
-                        best_candidate['utilization'] = ((self.courier_load.get(best_candidate['id'],
-                                                                                0.0) + order_weight)
-                                                         / best_candidate['capacity']) * 100
+                            # Обновляем загрузку кандидата для следующих итераций
+                            best_candidate['utilization'] = ((self.courier_load.get(best_candidate['id'],
+                                                                                    0.0) + order_weight)
+                                                            / best_candidate['capacity']) * 100
 
-                        # Пересортировываем недогруженных
-                        underloaded_sorted = sorted(underloaded_sorted, key=lambda x: x['utilization'])
+                            # Пересортировываем недогруженных
+                            underloaded_sorted = sorted(underloaded_sorted, key=lambda x: x['utilization'])
 
-                        self.log(f"   ➡️  Заказ #{order['id']} ({order_weight}кг) предложен {best_candidate['name']}")
-                    else:
-                        self.log(f"   ❌ Не удалось предложить передачу заказа #{order['id']}")
+                            self.log(f"   ➡️  Заказ #{order['id']} ({order_weight}кг) предложен {best_candidate['name']} (тот же район: {order_district})")
+                        else:
+                            self.log(f"   ❌ Не удалось предложить передачу заказа #{order['id']}")
 
-            # Ограничиваем общее количество передач за один цикл
-            if total_transfers >= 3:
-                self.log(f"   ⏸️  Достигнут лимит в {total_transfers} передач за цикл")
-                break
+                # Ограничиваем общее количество передач за один цикл
+                if total_transfers >= 3:
+                    self.log(f"   ⏸️  Достигнут лимит в {total_transfers} передач за цикл")
+                    break
 
-        if total_transfers == 0:
-            self.log("   ✅ Все курьеры уже сбалансированы!")
-        else:
-            self.log(f"   📊 Всего предложено передач: {total_transfers}")
+            if total_transfers == 0:
+                self.log("   ✅ Все курьеры уже сбалансированы!")
+            else:
+                self.log(f"   📊 Всего предложено передач: {total_transfers}")
 
     def get_order_weight(self, order_id):
         """Получает вес заказа по ID"""
@@ -1349,7 +1387,7 @@ class CoordinatorBehaviour(FipaRequestProtocol):
 
         distributed_count = 0
         max_attempts = len(self.agent.pending_orders) * 2
-        max_redistribution_attempts = 3  # Ограничиваем попытки перераспределения
+        max_redistribution_attempts = 3
 
         # Распределяем срочные заказы в первую очередь
         urgent_orders = [o for o in self.agent.pending_orders if o.get("priority") == "urgent"]
@@ -1361,9 +1399,19 @@ class CoordinatorBehaviour(FipaRequestProtocol):
 
         # Распределяем остальные заказы с балансировкой
         attempts = 0
+        processed_orders = []  # Список уже обработанных заказов
+        
         while self.agent.pending_orders and attempts < max_attempts:
             attempts += 1
+            
+            # Берем первый заказ из очереди
             order = self.agent.pending_orders[0]
+            
+            # Если заказ уже был обработан и вернулся в очередь, пропускаем
+            if order['id'] in processed_orders:
+                self.agent.log(f"⏭️  Пропускаем уже обработанный заказ #{order['id']}")
+                self.agent.pending_orders.append(self.agent.pending_orders.pop(0))
+                continue
 
             self.agent.log(f"🔍 Анализирую заказ #{order['id']} ({order['weight']}кг) для балансировки")
 
@@ -1372,16 +1420,23 @@ class CoordinatorBehaviour(FipaRequestProtocol):
             if courier_id:
                 if self.agent.assign_order_to_courier_with_balance(order, courier_id):
                     distributed_count += 1
-
+                    processed_orders.append(order['id'])
+                    
                     # Обновляем статистику
                     self.agent.update_gui_statistics_after_assignment()
 
                     # Инициируем обсуждение между курьерами с вероятностью 30%
                     if random.random() < 0.3:
                         self.initiate_courier_discussion(order, courier_id)
+                        
+                    # Удаляем заказ из pending_orders после успешного назначения
+                    if order in self.agent.pending_orders:
+                        self.agent.pending_orders.remove(order)
+                        
             else:
                 self.agent.log(f"⏳ Заказ #{order['id']} временно не может быть распределен")
-
+                processed_orders.append(order['id'])
+                
                 # Если есть заказы в очереди перераспределения, пытаемся их обработать
                 if self.agent.redistribution_queue:
                     redistribution_attempts = 0
@@ -1389,11 +1444,16 @@ class CoordinatorBehaviour(FipaRequestProtocol):
                         redistribution_attempts += 1
                         self.agent.attempt_redistribution()
 
-                # Перемещаем в конец очереди только если не попал в очередь перераспределения
-                if not order.get('in_redistribution_queue', False):
+                # Перемещаем заказ в конец очереди
+                if order in self.agent.pending_orders:
                     self.agent.pending_orders.append(self.agent.pending_orders.pop(0))
 
             time.sleep(0.5)
+            
+            # Если все заказы обработаны, выходим
+            if len(processed_orders) >= len(self.agent.orders_data):
+                self.agent.log("✅ Все заказы обработаны")
+                break
 
         # Выводим итоговую статистику
         self.show_distribution_summary()

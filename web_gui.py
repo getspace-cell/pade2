@@ -79,8 +79,9 @@ def load_initial_data():
                     "id": courier_data['id'],
                     "name": courier_data['name'],
                     "transport_type": courier_data['transport_type'],
-                    "max_capacity": max_capacity
+                    "max_capacity": max_capacity,
                 },
+                "district": courier_data.get('district', 'Не указан'),
                 "current_capacity": 0.0,
                 "assigned_orders": [],
                 "status": "available",
@@ -103,7 +104,8 @@ def load_initial_data():
                     "description": order_data['description'],
                     "recipient": order_data.get('recipient', 'Не указан'),
                     "recipient_phone": order_data.get('recipient_phone', ''),
-                    "priority": order_data.get('priority', 'normal')
+                    "priority": order_data.get('priority', 'normal'),
+                    "district": order_data.get('district', 'Не указан'),
                 },
                 "status": "pending",
                 "assigned_courier": None,
